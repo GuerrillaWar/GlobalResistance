@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>dd369a14-c132-4304-9822-d0b0d39357a2</Guid>
+    <Name>Global Resistance</Name>
+    <Description>A Rework of the strategy layer of XCOM 2, turning it into a hit and run Guerrilla War where Resistance Camps provide XCOM much needed intel and support.</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>GlobalResistance</AssemblyName>
+    <RootNamespace>GlobalResistance</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>
