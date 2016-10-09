@@ -9,7 +9,75 @@
     <RootNamespace>GlobalResistance</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Config\XComEditor.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComEngine.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\GlobalResistance.int">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_Earth.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_CityStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionSite.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_ResistanceCamp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_StrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_MissionLogicListener.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultCities.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultStrategyAssets.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyStart_CityStrategyAssets.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_CityControlZone.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_ResistanceCamp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\X2DownloadableContentInfo_GlobalResistance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\XComGameState_MissionLogic.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\XComGameState_NonstackingReinforcements.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\XComMissionLogic_TestLogic.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Config" />
+    <Folder Include="Content" />
+    <Folder Include="Localization" />
+    <Folder Include="Src" />
+    <Folder Include="Src\GlobalResistance" />
+    <Folder Include="Src\GlobalResistance\Classes" />
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>

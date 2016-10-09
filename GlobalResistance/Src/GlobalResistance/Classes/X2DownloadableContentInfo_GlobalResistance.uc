@@ -4,24 +4,29 @@ class X2DownloadableContentInfo_GlobalResistance extends X2DownloadableContentIn
 
 static event OnPostTemplatesCreated()
 {
-	`log("GuerrillaWar :: Present And Correct");
+  `log("GlobalResistance :: Present And Correct");
 }
 
 static event OnPreMission(XComGameState NewGameState, XComGameState_MissionSite MissionState)
 {
-	//local XComMissionLogic_Listener MissionListener;
-//
-	//`log("GlobalResistance :: Ensuring presence of tactical game state listeners");
-	//
-	//MissionListener = XComMissionLogic_Listener(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComMissionLogic_Listener', true));
-//
-	//if (MissionListener == none)
-	//{
-		//MissionListener = XComMissionLogic_Listener(NewGameState.CreateStateObject(class'XComMissionLogic_Listener'));
-		//NewGameState.AddStateObject(MissionListener);
-	//}
-//
-	//MissionListener.RegisterToListen();
+  local GlobalResistance_MissionLogicListener MissionListener;
+  `log("GlobalResistance :: Ensuring presence of tactical game state listeners");
+
+  MissionListener = GlobalResistance_MissionLogicListener(
+    `XCOMHISTORY.GetSingleGameStateObjectForClass(
+      class'GlobalResistance_MissionLogicListener', true
+    )
+  );
+
+  if (MissionListener == none)
+  {
+    MissionListener = GlobalResistance_MissionLogicListener(
+      NewGameState.CreateStateObject(class'GlobalResistance_MissionLogicListener')
+    );
+    NewGameState.AddStateObject(MissionListener);
+  }
+
+  MissionListener.RegisterToListen();
 }
 
 /// <summary>
@@ -31,5 +36,5 @@ static event OnPreMission(XComGameState NewGameState, XComGameState_MissionSite 
 /// </summary>
 static event InstallNewCampaign(XComGameState StartState)
 {
-//	class'GW_StrategyStart_CityStrategyAssets'.static.SetUpCityControlZones(StartState);
+ class'GlobalResistance_StrategyStart_CityStrategyAssets'.static.SetUpCityControlZones(StartState);
 }

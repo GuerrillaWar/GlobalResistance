@@ -1,0 +1,1 @@
+class GlobalResistance_GameState_ResistanceCamp extends GlobalResistance_GameState_StrategyAsset;
