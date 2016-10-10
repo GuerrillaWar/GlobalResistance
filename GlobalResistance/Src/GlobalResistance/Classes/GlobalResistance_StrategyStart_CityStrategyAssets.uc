@@ -13,15 +13,13 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
   local array<X2StrategyElementTemplate> arrCityTemplates;
 
   //Picking random cities
-  local int MaxCityIterations;
   local int CityIterations;  
   local array<XComGameState_WorldRegion> CapitalizedRegions;
   local array<GlobalResistance_CityTemplate> PickCitySet;
   local array<GlobalResistance_CityTemplate> PickedCities;
-  local int NumDesired, Index, RandomIndex;
+  local int Index, RandomIndex;
 
   arrCityTemplates = GetMyTemplateManager().GetAllTemplatesOfClass(class'GlobalResistance_CityTemplate');
-  MaxCityIterations = 100;
 
   PickCitySet.Length = 0;
   for( Index = 0; Index < arrCityTemplates.Length; ++Index )
@@ -30,9 +28,7 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
   }
 
   `log("CANDIDATE CITIES: " @ PickCitySet.Length);
-  NumDesired = 10;
   CityIterations = 0;
-  MaxCityIterations = PickCitySet.Length;
   PickedCities.Length = 0;
 
   if(PickCitySet.Length > 0)

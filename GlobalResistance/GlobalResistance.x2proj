@@ -40,6 +40,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_MissionLogicListener.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyAssetTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultCities.uc">
       <SubType>Content</SubType>
     </Content>

@@ -11,6 +11,7 @@ static function array<X2DataTemplate> CreateTemplates()
   AssetTemplates.AddItem(CreateCityControlZone());
   AssetTemplates.AddItem(CreateSlumCity());
   AssetTemplates.AddItem(CreateResistanceCamp());
+  AssetTemplates.AddItem(CreateAdventConvoy());
   
   return AssetTemplates;
 }
@@ -114,6 +115,31 @@ static function X2DataTemplate CreateResistanceCamp()
   Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
   Template.PlotTypes.AddItem('Shanty');
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAdventConvoy()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetSpeed Speed, BlankSpeed;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventConvoy');
+
+  Template.AssetCategory = eStrategyAssetCategory_Mobile;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.BaseInventoryCapacity = 200;
+  Template.BaseUnitCapacity = 15;
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
+
+  Speed = BlankSpeed;
+  Speed.ID = 'Standard';
+  Speed.Velocity = 0.1;
+
+  Template.Speeds.AddItem(Speed);
 
   return Template;
 }

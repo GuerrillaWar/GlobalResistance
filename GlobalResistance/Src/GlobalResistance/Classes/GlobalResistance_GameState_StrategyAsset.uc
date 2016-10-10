@@ -18,6 +18,8 @@ struct StrategyAssetWaypoint
 {
   var name Speed;
   var Vector Location; 
+  var bool Tracking;
+  var StateObjectReference DestinationRef;
 };
 
 var() array<StrategyAssetStructure> Structures;
@@ -139,13 +141,48 @@ function GlobalResistance_GameState_MissionSite SpawnMissionSite(name MissionSou
 
   return MissionState;
 }
+
+
+
+function AddAssetWaypoint (
+  GlobalResistance_GameState_StrategyAsset Asset,
+  name Speed,
+  bool Track = false
+) {
+  local StrategyAssetWaypoint Waypoint;
+
+  Waypoint.Location = Asset.Location;
+  Waypoint.DestinationRef = Asset.GetReference();
+  Waypoint.Speed = Speed;
+  Waypoint.Tracking = Track;
+  
+  Waypoints.AddItem(Waypoint);
+}
+
+
 //---------------------------------------------------------------------------------------
 //----------- XComGameState_GeoscapeEntity Implementation -------------------------------
 //---------------------------------------------------------------------------------------
 
+
 protected function bool CanInteract()
 {
   return true;
+}
+
+function UpdateMovement(float fDeltaT)
+{
+  local Vector DirectionVector;
+  local StrategyAssetWaypoint CurrentWaypoint;
+
+  if (Waypoints.Length > 0)
+  {
+    CurrentWaypoint = Waypoints[0];
+    DirectionVector = Normal(CurrentWaypoint.Location - Location);
+
+    Location.X += DirectionVector.X * 0.03 * fDeltaT;
+    Location.Y += DirectionVector.Y * 0.03 * fDeltaT;
+  }
 }
 
 //---------------------------------------------------------------------------------------

@@ -3,11 +3,23 @@ class GlobalResistance_GameState_CityStrategyAsset extends GlobalResistance_Game
 var() protected name                                 m_CityTemplateName;
 var() protected{mutable} transient GlobalResistance_CityTemplate    m_CityTemplate;
 
+var() TDateTime NextDispatch;
+
 function LoadCityTemplate(GlobalResistance_CityTemplate Template)
 {
   Location = Template.Location;
   m_CityTemplateName = Template.DataName;
   m_CityTemplate = Template;
+  SetNextDispatch();
+}
+
+function SetNextDispatch()
+{
+  NextDispatch = GetCurrentTime();
+  class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextDispatch, 12);
+  `log("Next Dispatch for" @ GetCityDisplayName() @ " - " @
+    class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(NextDispatch)
+  );
 }
 
 function StaticMesh GetStaticMesh()
@@ -34,4 +46,80 @@ function GlobalResistance_CityTemplate GetCityTemplate()
 function String GetCityDisplayName()
 {
   return GetCityTemplate().DisplayName;
+}
+
+function UpdateGameBoard()
+{
+	local XComGameState NewGameState;
+	local GlobalResistance_GameState_CityStrategyAsset NewCityState;
+	local bool bSuccess;
+
+	if (ShouldUpdate())
+	{
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState( "Send Convoy" );
+
+		NewCityState = GlobalResistance_GameState_CityStrategyAsset(
+      NewGameState.CreateStateObject(
+        class'GlobalResistance_GameState_CityStrategyAsset', ObjectID
+      )
+    );
+		NewGameState.AddStateObject( NewCityState );
+
+		bSuccess = NewCityState.Update(NewGameState);
+		`assert( bSuccess ); // why did Update & ShouldUpdate return different bools?
+
+		`XCOMGAME.GameRuleset.SubmitGameState( NewGameState );
+	}
+}
+
+
+function bool ShouldUpdate( )
+{
+  if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(NextDispatch, GetCurrentTime()))
+  {
+    return true;
+  }
+  return false;
+}
+
+function Array<GlobalResistance_GameState_CityStrategyAsset> GetOtherCities (
+  XComGameState GameState
+) {
+  local Array<GlobalResistance_GameState_CityStrategyAsset> Cities;
+  local GlobalResistance_GameState_CityStrategyAsset City;
+
+	foreach `XCOMHISTORY.IterateByClassType(class'GlobalResistance_GameState_CityStrategyAsset', City)
+	{
+    if (City.ObjectID != ObjectID)
+    {
+      Cities.AddItem(City);
+    }
+  }
+
+  return Cities;
+}
+
+function bool Update(XComGameState NewGameState)
+{
+  local Array<GlobalResistance_GameState_CityStrategyAsset> Cities;
+  local GlobalResistance_GameState_CityStrategyAsset City;
+  local GlobalResistance_GameState_StrategyAsset Convoy;
+  local int RandomIndex;
+
+  if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(NextDispatch, GetCurrentTime()))
+  {
+    Cities = GetOtherCities(NewGameState);
+    RandomIndex = `SYNC_RAND_STATIC(Cities.Length);
+    City = Cities[RandomIndex];
+
+    Convoy = class'GlobalResistance_GameState_StrategyAsset'.static.CreateAssetFromTemplate(NewGameState, 'StrategyAsset_AdventConvoy');
+    Convoy.Location = Location;
+    Convoy.AddAssetWaypoint(City, 'Standard');
+    NewGameState.AddStateObject(Convoy);
+    `log("Adding Convoy: " @ GetCityDisplayName() @ "->" @ City.GetCityDisplayName());
+
+    SetNextDispatch();
+    return true;
+  }
+  return false;
 }

@@ -24,7 +24,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 
 static function SetPosition(out GlobalResistance_CityTemplate Template, float Latitude, float Longitude) {
-  local float MercX, MercY, MercN, LatRad;
+  local float MercX, MercY;
   if (Latitude > 89.5) { Latitude = 89.5; }
   if (Latitude < -89.5) { Latitude = -89.5; }
 
