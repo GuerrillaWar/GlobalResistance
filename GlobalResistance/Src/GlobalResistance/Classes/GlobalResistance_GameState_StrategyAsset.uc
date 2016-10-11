@@ -143,6 +143,73 @@ function GlobalResistance_GameState_MissionSite SpawnMissionSite(name MissionSou
 }
 
 
+function GlobalResistance_GameState_WorldRegion GetNearestWorldRegion()
+{
+  local X2WorldRegionTemplate RegionTemplate;
+  local float ClosestDist, CheckDist;
+  local XComGameState_WorldRegion RegionState, NearestRegion;
+
+  closestDist = 100000000000000000000000;
+
+	foreach `XCOMHISTORY.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
+	{
+    RegionTemplate = RegionState.GetMyTemplate();
+    CheckDist = GetDistance(RegionTemplate.LandingLocation, Location);
+
+    if (CheckDist < ClosestDist) {
+      NearestRegion = RegionState;
+      ClosestDist = CheckDist;
+    }
+  }
+
+  return GlobalResistance_GameState_WorldRegion(NearestRegion);
+}
+
+function float GetDistance(Vector From, Vector To)
+{
+	local Vector DistVect;
+	DistVect = From - To;
+	return VSize(DistVect);
+}
+
+
+function SetWaypointsToAsset (
+  GlobalResistance_GameState_StrategyAsset Asset,
+  name Speed,
+  bool Track = false
+) {
+  local GlobalResistance_GameState_WorldRegion AssetRegion;
+  local XComGameState_WorldRegion PathRegion, LastRegion;
+  local X2WorldRegionTemplate RegionTemplate;
+  local RegionLinkTraverse Traverse;
+  local Array<XComGameState_WorldRegion> RegionChain;
+
+  AssetRegion = Asset.GetNearestWorldRegion();
+  RegionChain = GetNearestWorldRegion().FindShortestPathToRegion(AssetRegion);
+
+  `log("Building Path:" @ RegionChain.Length);
+
+  if (RegionChain.Length > 1) {
+    foreach RegionChain(PathRegion) {
+      if (LastRegion.ObjectID != 0)
+      {
+        RegionTemplate = PathRegion.GetMyTemplate();
+        `log("--" @ RegionTemplate.DisplayName);
+        Traverse = class'GlobalResistance_GameState_RegionLink'.static.GetRegionLinkTraverse(
+          LastRegion, PathRegion
+        );
+        AddWaypoint(Traverse.From, Speed);
+        AddWaypoint(Traverse.To, Speed);
+      }
+
+      LastRegion = PathRegion;
+
+    }
+  }
+
+  AddAssetWaypoint(Asset, Speed, Track);
+}
+
 
 function AddAssetWaypoint (
   GlobalResistance_GameState_StrategyAsset Asset,
@@ -156,6 +223,18 @@ function AddAssetWaypoint (
   Waypoint.Speed = Speed;
   Waypoint.Tracking = Track;
   
+  Waypoints.AddItem(Waypoint);
+}
+
+function AddWaypoint (
+  Vector WaypointLoc,
+  name Speed
+) {
+  local StrategyAssetWaypoint Waypoint;
+
+  Waypoint.Location = WaypointLoc;
+  Waypoint.Speed = Speed;
+  Waypoint.Tracking = false;
   Waypoints.AddItem(Waypoint);
 }
 
@@ -173,15 +252,31 @@ protected function bool CanInteract()
 function UpdateMovement(float fDeltaT)
 {
   local Vector DirectionVector;
+  local float DistanceRemaining;
   local StrategyAssetWaypoint CurrentWaypoint;
+
+  // scale movement by time passage
+  fDeltaT *= (`GAME.GetGeoscape().m_fTimeScale / `GAME.GetGeoscape().ONE_HOUR);
 
   if (Waypoints.Length > 0)
   {
     CurrentWaypoint = Waypoints[0];
+    DistanceRemaining = GetDistance(CurrentWaypoint.Location, Location);
+
+    if (DistanceRemaining < 0.0001)
+    {
+      Waypoints.RemoveItem(CurrentWaypoint);
+    }
+  }
+
+  if (Waypoints.Length > 0)
+  {
+    CurrentWaypoint = Waypoints[0];
+
     DirectionVector = Normal(CurrentWaypoint.Location - Location);
 
-    Location.X += DirectionVector.X * 0.03 * fDeltaT;
-    Location.Y += DirectionVector.Y * 0.03 * fDeltaT;
+    Location.X += DirectionVector.X * 0.005 * fDeltaT;
+    Location.Y += DirectionVector.Y * 0.005 * fDeltaT;
   }
 }
 

@@ -16,7 +16,7 @@ function LoadCityTemplate(GlobalResistance_CityTemplate Template)
 function SetNextDispatch()
 {
   NextDispatch = GetCurrentTime();
-  class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextDispatch, 12);
+  class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextDispatch, 48);
   `log("Next Dispatch for" @ GetCityDisplayName() @ " - " @
     class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(NextDispatch)
   );
@@ -114,7 +114,7 @@ function bool Update(XComGameState NewGameState)
 
     Convoy = class'GlobalResistance_GameState_StrategyAsset'.static.CreateAssetFromTemplate(NewGameState, 'StrategyAsset_AdventConvoy');
     Convoy.Location = Location;
-    Convoy.AddAssetWaypoint(City, 'Standard');
+    Convoy.SetWaypointsToAsset(City, 'Standard');
     NewGameState.AddStateObject(Convoy);
     `log("Adding Convoy: " @ GetCityDisplayName() @ "->" @ City.GetCityDisplayName());
 

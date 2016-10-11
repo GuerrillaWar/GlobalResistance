@@ -31,10 +31,16 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionSite.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_RegionLink.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_ResistanceCamp.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_StrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_WorldRegion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_MissionLogicListener.uc">
