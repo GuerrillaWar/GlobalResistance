@@ -252,19 +252,24 @@ protected function bool CanInteract()
 function UpdateMovement(float fDeltaT)
 {
   local Vector DirectionVector;
-  local float DistanceRemaining;
+  local float DistanceRemaining, TravelDistance;
   local StrategyAssetWaypoint CurrentWaypoint;
 
   // scale movement by time passage
   fDeltaT *= (`GAME.GetGeoscape().m_fTimeScale / `GAME.GetGeoscape().ONE_HOUR);
+  TravelDistance = fDeltaT * 0.005;
 
   if (Waypoints.Length > 0)
   {
     CurrentWaypoint = Waypoints[0];
     DistanceRemaining = GetDistance(CurrentWaypoint.Location, Location);
 
-    if (DistanceRemaining < 0.0001)
+    if (DistanceRemaining < TravelDistance)
     {
+      // soak up remaining distance and transport to waypoint
+      TravelDistance -= DistanceRemaining;
+      Location.X = CurrentWaypoint.Location.X;
+      Location.Y = CurrentWaypoint.Location.Y;
       Waypoints.RemoveItem(CurrentWaypoint);
     }
   }
@@ -275,8 +280,9 @@ function UpdateMovement(float fDeltaT)
 
     DirectionVector = Normal(CurrentWaypoint.Location - Location);
 
-    Location.X += DirectionVector.X * 0.005 * fDeltaT;
-    Location.Y += DirectionVector.Y * 0.005 * fDeltaT;
+    // use up remaining travel distance
+    Location.X += DirectionVector.X * TravelDistance;
+    Location.Y += DirectionVector.Y * TravelDistance;
   }
 }
 
@@ -304,7 +310,7 @@ function string GetUIPinImagePath()
 // The static mesh for this entities 3D UI
 function StaticMesh GetStaticMesh()
 {
-  return StaticMesh(`CONTENT.RequestGameArchetype("UI_3D.Overwold_Final.Council_VIP"));
+  return StaticMesh(`CONTENT.RequestGameArchetype("UI_3D.Overwold_Final.GorillaOps"));
 }
 
 // Scale adjustment for the 3D UI static mesh

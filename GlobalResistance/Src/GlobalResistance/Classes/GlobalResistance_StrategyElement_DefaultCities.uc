@@ -8,11 +8,13 @@ static function array<X2DataTemplate> CreateTemplates()
   Cities.AddItem(CreateSantiagoTemplate());
   Cities.AddItem(CreateSeoulTemplate());
 
+  Cities.AddItem(CreateSingaporeTemplate());
+  Cities.AddItem(CreateNewDelhiTemplate());
+
   // AUSTRALIA Cities
   Cities.AddItem(CreateSydneyTemplate());
   Cities.AddItem(CreateMelbourneTemplate());
   Cities.AddItem(CreateBrisbaneTemplate());
-  Cities.AddItem(CreatePerthTemplate());
 
   return Cities;
 }
@@ -51,6 +53,23 @@ static function X2DataTemplate CreateSantiagoTemplate()
   local GlobalResistance_CityTemplate Template;
   `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'Santiago');
   SetPosition(Template, 33.4489, -70.6693);
+  return Template;
+}
+
+static function X2DataTemplate CreateNewDelhiTemplate()
+{
+  local GlobalResistance_CityTemplate Template;
+  `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'NewDelhi');
+  SetPosition(Template, -28.6139, 77.2090);
+  return Template;
+}
+
+
+static function X2DataTemplate CreateSingaporeTemplate()
+{
+  local GlobalResistance_CityTemplate Template;
+  `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'Singapore');
+  SetPosition(Template, -1.3521, 103.8198);
   return Template;
 }
 

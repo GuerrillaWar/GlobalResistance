@@ -10,6 +10,14 @@ PoiText=""
 DisplayName="Seoul"
 PoiText=""
 
+[Singapore GlobalResistance_CityTemplate]
+DisplayName="Singapore"
+PoiText=""
+
+[NewDelhi GlobalResistance_CityTemplate]
+DisplayName="New Delhi"
+PoiText=""
+
 [Sydney GlobalResistance_CityTemplate]
 DisplayName="Sydney"
 PoiText=""
