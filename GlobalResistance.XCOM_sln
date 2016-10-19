@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # XCOM ModBuddy Solution File, Format Version 11.00
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{5DAE07AF-E217-45C1-8DE7-FF99D6011E8A}") = "GlobalResistance", "GlobalResistance\GlobalResistance.x2proj", "{CE2409B3-F87B-41D3-AAA2-4FFACE4ADC98}"
+Project("{5DAE07AF-E217-45C1-8DE7-FF99D6011E8A}") = "GlobalResistance", "GlobalResistance\GlobalResistance.x2proj", "{1B743F13-BC0F-42C9-A4DC-F047769D60C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Default|XCOM 2 = Default|XCOM 2
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CE2409B3-F87B-41D3-AAA2-4FFACE4ADC98}.Default|XCOM 2.ActiveCfg = Default|XCOM 2
-		{CE2409B3-F87B-41D3-AAA2-4FFACE4ADC98}.Default|XCOM 2.Build.0 = Default|XCOM 2
+		{1B743F13-BC0F-42C9-A4DC-F047769D60C3}.Default|XCOM 2.ActiveCfg = Default|XCOM 2
+		{1B743F13-BC0F-42C9-A4DC-F047769D60C3}.Default|XCOM 2.Build.0 = Default|XCOM 2
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

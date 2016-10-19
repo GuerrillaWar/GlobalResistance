@@ -30,7 +30,7 @@ function StaticMesh GetStaticMesh()
   }
   else
   {
-    return StaticMesh(`CONTENT.RequestGameArchetype("UI_3D.Overworld.CityLights"));
+    return StaticMesh(`CONTENT.RequestGameArchetype("Strat_HoloOverworld.CityPlane"));
   }
 }
 

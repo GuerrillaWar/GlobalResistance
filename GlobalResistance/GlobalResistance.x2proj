@@ -28,6 +28,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_CityStrategyAsset.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionCalendar.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionSite.uc">
       <SubType>Content</SubType>
     </Content>
@@ -50,6 +53,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultCities.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultObjectives.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultStrategyAssets.uc">
