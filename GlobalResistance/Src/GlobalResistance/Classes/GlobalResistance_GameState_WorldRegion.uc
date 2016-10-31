@@ -1,8 +1,11 @@
 class GlobalResistance_GameState_WorldRegion
 extends XComGameState_WorldRegion;
 
+var() array<StateObjectReference>   GuardPosts;
+var() array<StateObjectReference>   Roads;
+
 function bool ShouldBeVisible() {
-  return true;
+  return false;
 }
 
 function array<XComGameState_WorldRegion> FindShortestPathToRegion(XComGameState_WorldRegion TargetRegion)

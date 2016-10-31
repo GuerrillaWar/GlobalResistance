@@ -12,6 +12,7 @@ static function array<X2DataTemplate> CreateTemplates()
   AssetTemplates.AddItem(CreateSlumCity());
   AssetTemplates.AddItem(CreateResistanceCamp());
   AssetTemplates.AddItem(CreateAdventConvoy());
+  AssetTemplates.AddItem(CreateGuardPost());
   
   return AssetTemplates;
 }
@@ -96,6 +97,25 @@ static function X2DataTemplate CreateSlumCity()
   Template.PlotTypes.AddItem('Slums');
 
   AddSupplyCentreStructureDef(Template);
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateGuardPost()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_GuardPost');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.BaseInventoryCapacity = 200;
+  Template.BaseUnitCapacity = 15;
+  Template.HasCoreStructure = true;
+  Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
+  Template.PlotTypes.AddItem('Wilderness');
 
   return Template;
 }

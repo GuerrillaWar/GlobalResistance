@@ -43,6 +43,11 @@ function GlobalResistance_CityTemplate GetCityTemplate()
   return m_CityTemplate;
 }
 
+function Name GetCityTemplateName()
+{
+  return m_CityTemplateName;
+}
+
 function String GetCityDisplayName()
 {
   return GetCityTemplate().DisplayName;

@@ -1,7 +1,7 @@
 class GlobalResistance_CityTemplate extends X2StrategyElementTemplate;
 
-var(CityTemplate) Vector    Location;
-var(CityTemplate) name		  Country;
+var(GlobalResistance_CityTemplate) Vector    Location;
+var(GlobalResistance_CityTemplate) name		  Country;
 
 var localized string      DisplayName;
 var localized string      PoiText;

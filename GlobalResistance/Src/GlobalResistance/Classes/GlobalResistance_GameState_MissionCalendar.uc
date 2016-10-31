@@ -21,5 +21,5 @@ function bool Update(XComGameState NewGameState)
 
 function OnEndOfMonth(XComGameState NewGameState)
 {
-  return false;
+  return;
 }
