@@ -6,16 +6,11 @@ static function array<X2DataTemplate> CreateTemplates()
 
   Templates.AddItem(CreateMontrealTemplate());
   Templates.AddItem(CreateSantiagoTemplate());
-  Templates.AddItem(CreateSeoulTemplate());
 
-  Templates.AddItem(CreateSingaporeTemplate());
-  Templates.AddItem(CreateNewDelhiTemplate());
-
-  // AUSTRALIA Templates
-  /* Templates.AddItem(CreateSydneyTemplate()); */
-  /* Templates.AddItem(CreateMelbourneTemplate()); */
-  /* Templates.AddItem(CreateBrisbaneTemplate()); */
   CreateAustralia(Templates);
+  CreateSouthEastAsia(Templates);
+  CreateSouthAsia(Templates);
+  CreateEastAsia(Templates);
 
   return Templates;
 }
@@ -60,11 +55,12 @@ static function SetPositionGP(
 }
 
 static function X2DataTemplate CreateCity (
-  name DataName, float Latitude, float Longitude
+  name DataName, float Latitude, float Longitude, bool BorderCity = false
 ) {
   local GlobalResistance_CityTemplate Template;
   `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, DataName);
   SetPositionCity(Template, Latitude, Longitude);
+  Template.BorderCity = BorderCity;
   return Template;
 }
 
@@ -94,37 +90,47 @@ static function X2DataTemplate CreateSantiagoTemplate()
   return Template;
 }
 
-static function X2DataTemplate CreateNewDelhiTemplate()
+static function CreateSouthAsia(out array<X2DataTemplate> Assets)
 {
-  local GlobalResistance_CityTemplate Template;
-  `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'NewDelhi');
-  SetPositionCity(Template, -28.6139, 77.2090);
-  return Template;
+  Assets.AddItem(CreateCity('Kolkata', -22.6756, 88.2285, true));
+  Assets.AddItem(CreateCity('NewDelhi', -28.5272, 77.1389, true));
+  Assets.AddItem(CreateCity('Karachi', -25.0001, 66.9246, true));
+  Assets.AddItem(CreateGuardPost('GP_SAsiaKathmandu', -27.7089, 85.2911));
+  Assets.AddItem(CreateGuardPost('GP_SAsiaMumbai', -19.0827, 72.7411));
+  Assets.AddItem(CreateGuardPost('GP_SAsiaNagpur', -21.1610, 79.0024));
+  Assets.AddItem(CreateGuardPost('GP_SAsiaChennai', -13.0475, 80.0689));
 }
 
-
-static function X2DataTemplate CreateSingaporeTemplate()
+static function CreateEastAsia(out array<X2DataTemplate> Assets)
 {
-  local GlobalResistance_CityTemplate Template;
-  `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'Singapore');
-  SetPositionCity(Template, -1.3521, 103.8198);
-  return Template;
+  Assets.AddItem(CreateCity('Shanghai', -31.2240, 121.1965, true));
+  Assets.AddItem(CreateCity('Seoul', -37.5665, 126.9780));
+  Assets.AddItem(CreateCity('Tokyo', -35.6691, 139.6012));
+  Assets.AddItem(CreateGuardPost('GP_EAsiaOsaka', -34.6783, 135.4776));
+  Assets.AddItem(CreateGuardPost('GP_EAsiaSapporo', -43.0594, 141.3354));
+  Assets.AddItem(CreateGuardPost('GP_EAsiaBeijing', -39.9385, 116.1172));
+  Assets.AddItem(CreateGuardPost('GP_EAsiaChangchun', -43.6509, 126.6662, true));
+  Assets.AddItem(CreateGuardPost('GP_EAsiaZhengzhou', -34.7425, 113.5230, true));
 }
 
-static function X2DataTemplate CreateSeoulTemplate()
+static function CreateSouthEastAsia(out array<X2DataTemplate> Assets)
 {
-  local GlobalResistance_CityTemplate Template;
-  `CREATE_X2TEMPLATE(class'GlobalResistance_CityTemplate', Template, 'Seoul');
-  SetPositionCity(Template, -37.5665, 126.9780);
-  return Template;
+  Assets.AddItem(CreateCity('Singapore', -1.3521, 103.8198));
+  Assets.AddItem(CreateCity('Manila', -14.5964, 120.9619, true));
+  Assets.AddItem(CreateCity('HoChiMinhCity', -10.7680, 106.4141));
+  Assets.AddItem(CreateGuardPost('GP_SEAsiaJakarta', 6.2297, 106.7594));
+  Assets.AddItem(CreateGuardPost('GP_SEAsiaMakassar', 5.1227, 119.3912, true));
+  Assets.AddItem(CreateGuardPost('GP_SEAsiaBangkok', -13.7245, 100.4930, true));
 }
 
 static function CreateAustralia(out array<X2DataTemplate> Assets)
 {
   Assets.AddItem(CreateCity('Sydney', 33.8688, 151.2093));
   Assets.AddItem(CreateCity('Melbourne', 37.8136, 144.9631));
-  Assets.AddItem(CreateCity('Brisbane', 27.4698, 153.0251));
+  Assets.AddItem(CreateCity('Brisbane', 27.4698, 153.0251, true));
   Assets.AddItem(CreateGuardPost('GP_AustraliaAdelaide', 34.9285, 138.6007));
   Assets.AddItem(CreateGuardPost('GP_AustraliaCobar', 31.7015, 145.8373));
-  Assets.AddItem(CreateGuardPost('GP_Darwin', 12.5827, 130.9641, true));
+  Assets.AddItem(CreateGuardPost('GP_AustraliaTownsville', 19.2966, 146.6851));
+  Assets.AddItem(CreateGuardPost('GP_AustraliaAliceSprings', 23.6993, 133.8757));
+  Assets.AddItem(CreateGuardPost('GP_AustraliaDarwin', 12.5827, 130.9641, true));
 }
