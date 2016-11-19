@@ -11,6 +11,7 @@ static function array<X2DataTemplate> CreateTemplates()
   CreateSouthEastAsia(Templates);
   CreateSouthAsia(Templates);
   CreateEastAsia(Templates);
+  CreateNewArctic(Templates);
 
   return Templates;
 }
@@ -95,7 +96,7 @@ static function CreateSouthAsia(out array<X2DataTemplate> Assets)
   Assets.AddItem(CreateCity('Kolkata', -22.6756, 88.2285, true));
   Assets.AddItem(CreateCity('NewDelhi', -28.5272, 77.1389, true));
   Assets.AddItem(CreateCity('Karachi', -25.0001, 66.9246, true));
-  Assets.AddItem(CreateGuardPost('GP_SAsiaKathmandu', -27.7089, 85.2911));
+  Assets.AddItem(CreateGuardPost('GP_SAsiaKathmandu', -27.7089, 85.2911, true));
   Assets.AddItem(CreateGuardPost('GP_SAsiaMumbai', -19.0827, 72.7411));
   Assets.AddItem(CreateGuardPost('GP_SAsiaNagpur', -21.1610, 79.0024));
   Assets.AddItem(CreateGuardPost('GP_SAsiaChennai', -13.0475, 80.0689));
@@ -133,4 +134,13 @@ static function CreateAustralia(out array<X2DataTemplate> Assets)
   Assets.AddItem(CreateGuardPost('GP_AustraliaTownsville', 19.2966, 146.6851));
   Assets.AddItem(CreateGuardPost('GP_AustraliaAliceSprings', 23.6993, 133.8757));
   Assets.AddItem(CreateGuardPost('GP_AustraliaDarwin', 12.5827, 130.9641, true));
+}
+
+static function CreateNewArctic(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('Magadan', -59.5675, 150.7512, true)); // to america
+  Assets.AddItem(CreateCity('Yakutsk', -62.0328, 129.5661, true)); // to east asia
+  Assets.AddItem(CreateGuardPost('GP_NewArcticUstNera', -64.5615, 143.2114));
+  Assets.AddItem(CreateGuardPost('GP_NewArcticBatagay', -67.6625, 134.6521));
+  Assets.AddItem(CreateGuardPost('GP_NewArcticVilyuysk', -63.7491, 121.5951,true)); // to north asia
 }
