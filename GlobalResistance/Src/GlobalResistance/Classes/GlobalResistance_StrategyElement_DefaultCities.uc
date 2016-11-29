@@ -22,6 +22,9 @@ static function array<X2DataTemplate> CreateTemplates()
   CreateWestAfrica(Templates);
   CreateSouthAfrica(Templates);
 
+  CreateSouthSA(Templates);
+  CreateNorthSA(Templates);
+
   return Templates;
 }
 
@@ -208,4 +211,27 @@ static function CreateSouthAfrica(out array<X2DataTemplate> Assets)
   Assets.AddItem(CreateGuardPost('GP_SAfricaUpington', 28.4354, 21.0684));
   Assets.AddItem(CreateGuardPost('GP_SAfricaWindhoek', 22.5637, 16.9921));
   Assets.AddItem(CreateGuardPost('GP_SAfricaGaborone', 24.6092, 25.8604));
+}
+
+static function CreateSouthSA(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('BuenosAires', 34.6156, -58.5734));
+  Assets.AddItem(CreateCity('Santiago', 33.4727, -70.7699, true));
+  Assets.AddItem(CreateCity('SaoPaulo', 23.6821, -46.8754, true));
+  Assets.AddItem(CreateGuardPost('GP_SouthSAAsuncion', 25.2968, -57.6681));
+  Assets.AddItem(CreateGuardPost('GP_SouthSACordoba', 31.3993, -64.3344));
+  Assets.AddItem(CreateGuardPost('GP_SouthSAAntofagasta', 23.6283, -70.4745));
+  Assets.AddItem(CreateGuardPost('GP_SouthSASantaCruz', 17.7574, -63.2918, true));
+  Assets.AddItem(CreateGuardPost('GP_SouthSAPortoAlegre', 30.1088, -51.2469));
+}
+
+static function CreateNorthSA(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('Quito', 0.1865, -78.5706));
+  Assets.AddItem(CreateCity('Bogota', -4.6482, -74.2478));
+  Assets.AddItem(CreateCity('Caracas', -10.4683, -67.0304));
+  Assets.AddItem(CreateGuardPost('GP_NorthSAIquitos', 3.7529, -73.3183, true));
+  Assets.AddItem(CreateGuardPost('GP_NorthSACali', -3.3950, -76.5957));
+  Assets.AddItem(CreateGuardPost('GP_NorthSASanCristobal', -7.7617, -72.2567));
+  Assets.AddItem(CreateGuardPost('GP_NorthSATurbo', -8.0855, -76.7392, true));
 }
