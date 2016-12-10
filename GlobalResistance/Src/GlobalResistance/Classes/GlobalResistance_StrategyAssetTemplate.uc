@@ -70,3 +70,15 @@ var class<GlobalResistance_GameState_StrategyAsset> GameStateClass;
 var class<GlobalResistance_UIStrategyAsset> StrategyUIClass;
 
 var array<name> PlotTypes;
+
+function StrategyAssetStructureDefinition GetStructureDefinition(name StructureType)
+{
+  local StrategyAssetStructureDefinition StructureDef;
+  foreach AllowedStructures(StructureDef)
+  {
+    if (StructureDef.ID == StructureType)
+    {
+      return StructureDef;
+    }
+  }
+}

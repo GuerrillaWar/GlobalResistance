@@ -1,4 +1,6 @@
-class GlobalResistance_GameState_StrategyAsset extends XComGameState_GeoscapeEntity;
+class GlobalResistance_GameState_StrategyAsset
+extends XComGameState_GeoscapeEntity
+dependson(GlobalResistance_StrategyAssetTemplate);
 
 struct StrategyAssetStructure
 {
@@ -49,6 +51,8 @@ static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate
   Asset.m_TemplateName = TemplateName;
   Asset.m_AssetTemplate = Template;
 
+  
+
   return Asset;
 }
 
@@ -57,6 +61,27 @@ static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate
 //---------------------------------------------------------------------------------------
 //----------- GlobalResistance_GameState_StrategyAsset Interface --------------------------------------
 //---------------------------------------------------------------------------------------
+function AddStructureOfType(name StructureType)
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetStructure Structure;
+  local StrategyAssetStructureDefinition StructureDef;
+  local StrategyAssetProductionDefinition ProductionDef;
+
+  Template = GetMyTemplate();
+  StructureDef = Template.GetStructureDefinition(StructureType);
+
+  Structure.Type = StructureType;
+  Structure.BuildHoursRemaining = 0;
+  Structure.NextUpkeepTick = StructureDef.UpkeepHours;
+  foreach StructureDef.BaseProductionCapability(ProductionDef)
+  {
+    Structure.NextProductionTick.AddItem(ProductionDef.CycleHours);
+  }
+
+  Structures.AddItem(Structure);
+}
+
 
 function int GetStructureCount(name StructureType)
 {

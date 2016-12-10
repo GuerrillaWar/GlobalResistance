@@ -97,7 +97,10 @@ simulated function BuildMissionPanel()
   LibraryPanel.MC.QueueString("Relaxed Forces");
   LibraryPanel.MC.QueueString("GARRISON");
   LibraryPanel.MC.QueueString("ADVENT: 100-150, AYYLMAO: 20-40, MECH: 40-50");
-  LibraryPanel.MC.QueueString("");
+  LibraryPanel.MC.QueueString(
+    "Supply Centres: " $ CityAsset.GetStructureCount('SupplyCentre') $ "\n" $
+    "Gene Clinics: " $ CityAsset.GetStructureCount('GeneClinic')
+  );
 
   LibraryPanel.MC.QueueString("Civilian Sentiment");
   LibraryPanel.MC.QueueString("Neutral");

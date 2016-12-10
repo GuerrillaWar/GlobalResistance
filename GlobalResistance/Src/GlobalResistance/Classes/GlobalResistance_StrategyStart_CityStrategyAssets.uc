@@ -48,6 +48,7 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
   local array<XComGameState_WorldRegion> CapitalizedRegions;
   local array<GlobalResistance_CityTemplate> PickCitySet;
   local array<GlobalResistance_CityTemplate> PickedCities;
+  local bool IsCapital;
   local int Index, RandomIndex;
 
   arrCityTemplates = GetMyTemplateManager().GetAllTemplatesOfClass(class'GlobalResistance_CityTemplate');
@@ -94,17 +95,32 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
         class'GlobalResistance_GameState_StrategyAsset'.static.CreateAssetFromTemplate(StartState, 'StrategyAsset_CityControlZone')
       );
       CapitalizedRegions.AddItem(RegionState);
+      IsCapital = true;
     }
     else
     {
       CCZ = GlobalResistance_GameState_CityStrategyAsset(
         class'GlobalResistance_GameState_StrategyAsset'.static.CreateAssetFromTemplate(StartState, 'StrategyAsset_SlumCity')
       );
+      IsCapital = false;
     }
 
     CCZ.LoadCityTemplate(PickedCities[Index]);
     CCZ.Region = RegionState.GetReference();
     CCZ.Continent = RegionState.GetContinent().GetReference();
+
+    if (IsCapital) {
+      CCZ.AddStructureOfType('GeneClinic');
+      CCZ.AddStructureOfType('GeneClinic');
+      CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('SupplyCentre');
+    } else {
+      CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('SupplyCentre');
+    }
 
     StartState.AddStateObject(CCZ);
     `log("Added City: " @ CCZ.GetCityDisplayName());
