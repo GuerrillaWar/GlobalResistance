@@ -33,3 +33,9 @@ PoiText=""
 [Perth GlobalResistance_CityTemplate]
 DisplayName="Perth"
 PoiText=""
+
+
+[DefaultSabotageCC X2MissionNarrativeTemplate]
+ObjectiveTextPools[0]="Plant X4 charges on the monument"
+ObjectiveTextPools[1]="Extract all XCOM soldiers"
+

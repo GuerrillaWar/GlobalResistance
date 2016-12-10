@@ -52,9 +52,6 @@ static function GlobalResistance_GameState_Road BuildRoad(
   Road.RoadLength = VSize(Road.WorldPosA - Road.WorldPosB);
   Road.Connector = Connects;
   Road.Location.z = 0.4;
-  `log("RoadFrom:" @ Road.WorldPosA);
-  `log("RoadTo:" @ Road.WorldPosB);
-  `log("RoadLength:" @ Road.RoadLength);
   return Road;
 }
 

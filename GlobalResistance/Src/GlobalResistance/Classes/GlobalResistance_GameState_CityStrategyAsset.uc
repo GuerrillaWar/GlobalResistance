@@ -3,6 +3,9 @@ class GlobalResistance_GameState_CityStrategyAsset extends GlobalResistance_Game
 var() protected name                                 m_CityTemplateName;
 var() protected{mutable} transient GlobalResistance_CityTemplate    m_CityTemplate;
 
+var name GeneClinicName;
+var name RecruitmentCentreName;
+var name SupplyCentreName;
 var() TDateTime NextDispatch;
 
 function LoadCityTemplate(GlobalResistance_CityTemplate Template)
@@ -12,6 +15,7 @@ function LoadCityTemplate(GlobalResistance_CityTemplate Template)
   m_CityTemplate = Template;
   SetNextDispatch();
 }
+
 
 function SetNextDispatch()
 {
@@ -52,6 +56,24 @@ function String GetCityDisplayName()
 {
   return GetCityTemplate().DisplayName;
 }
+
+
+function int GetGeneClinicCount() { return GetStructureCount(default.GeneClinicName); }
+function int GetRecruitmentCentreCount() { return GetStructureCount(default.RecruitmentCentreName); }
+function int GetSupplyCentreCount() { return GetStructureCount(default.SupplyCentreName); }
+
+function DestroyGeneClinic() { DestroyStructureOfType(default.GeneClinicName); }
+
+function GlobalResistance_GameState_MissionSite GenerateGeneClinicMission()
+{
+  return SpawnMissionSite('MissionSource_SabotageCCZGeneClinic', 'Reward_None');
+}
+
+function GlobalResistance_GameState_MissionSite GenerateMonumentMission()
+{
+  return SpawnMissionSite('MissionSource_SabotageCCZMonument', 'Reward_None');
+}
+
 
 function UpdateGameBoard()
 {
@@ -128,3 +150,12 @@ function bool Update(XComGameState NewGameState)
   }
   return false;
 }
+
+
+defaultproperties
+{
+  GeneClinicName="GeneClinic"
+  RecruitmentCentreName="RecruitmentCentre"
+  SupplyCentreName="SupplyCentre"
+}
+

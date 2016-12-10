@@ -114,7 +114,7 @@ static function X2DataTemplate CreateGuardPost()
   Template.BaseUnitCapacity = 15;
   Template.HasCoreStructure = true;
   Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_GuardPost';
   Template.PlotTypes.AddItem('Wilderness');
 
   return Template;
@@ -132,7 +132,7 @@ static function X2DataTemplate CreateResistanceCamp()
   Template.BaseInventoryCapacity = 1000;
   Template.BaseUnitCapacity = 100;
   Template.HasCoreStructure = false;
-  Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
+  Template.GameStateClass = class'GlobalResistance_GameState_ResistanceCamp';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
   Template.PlotTypes.AddItem('Shanty');
 

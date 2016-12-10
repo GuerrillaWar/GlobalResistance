@@ -80,6 +80,14 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
   {
     RegionState = GetNearestRegion(StartState, PickedCities[Index].Location);
     //Build the state object and add it to the start state
+    //
+    
+    if (Index == 0) {
+      // make me a resistance haven for debug purposes
+      class'GlobalResistance_GameState_ResistanceCamp'.static.ActivateCampInRegion(StartState, RegionState);
+    }
+
+
     if (CapitalizedRegions.Find(RegionState) == -1)
     {
       CCZ = GlobalResistance_GameState_CityStrategyAsset(

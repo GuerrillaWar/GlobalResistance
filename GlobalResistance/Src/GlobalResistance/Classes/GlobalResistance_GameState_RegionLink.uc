@@ -95,5 +95,5 @@ function RegionLinkTraverse GetStandardTraverse()
 
 function bool ShouldBeVisible()
 {
-  return true;
+  return false;
 }

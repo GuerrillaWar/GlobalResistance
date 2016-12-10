@@ -25,6 +25,10 @@ static function array<X2DataTemplate> CreateTemplates()
   CreateSouthSA(Templates);
   CreateNorthSA(Templates);
 
+  CreateSouthNA(Templates);
+  CreateWestNA(Templates);
+  CreateEastNA(Templates);
+
   return Templates;
 }
 
@@ -176,7 +180,7 @@ static function CreateWestEurope(out array<X2DataTemplate> Assets)
   Assets.AddItem(CreateCity('Paris', -48.8587, 2.2074));
   Assets.AddItem(CreateCity('Milan', -45.4627, 9.1076, true));
   Assets.AddItem(CreateGuardPost('GP_WEuropeFrankfurt', -50.1211, 8.4964));
-  Assets.AddItem(CreateGuardPost('GP_WEuropeLaRochelle', -46.1620, -1.2463));
+  Assets.AddItem(CreateGuardPost('GP_WEuropeLaRochelle', -46.1620, -1.2463, true));
   Assets.AddItem(CreateGuardPost('GP_WEuropeMontpellier', -43.6100, 3.8041));
   Assets.AddItem(CreateGuardPost('GP_WEuropeNice', -43.7030, 7.1828));
 }
@@ -234,4 +238,40 @@ static function CreateNorthSA(out array<X2DataTemplate> Assets)
   Assets.AddItem(CreateGuardPost('GP_NorthSACali', -3.3950, -76.5957));
   Assets.AddItem(CreateGuardPost('GP_NorthSASanCristobal', -7.7617, -72.2567));
   Assets.AddItem(CreateGuardPost('GP_NorthSATurbo', -8.0855, -76.7392, true));
+}
+
+static function CreateSouthNA(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('MexicoCity', -19.3905, -99.4237, true));
+  Assets.AddItem(CreateCity('Monterrey', -25.6487, -100.4431));
+  Assets.AddItem(CreateCity('Dallas', -32.8203, -97.0115, true));
+  Assets.AddItem(CreateGuardPost('GP_SouthNASanAntonio', -29.4811, -98.7945));
+  Assets.AddItem(CreateGuardPost('GP_SouthNADurango', -24.0226, -104.7177));
+  Assets.AddItem(CreateGuardPost('GP_SouthNAChihuahua', -28.6708, -106.2047));
+  Assets.AddItem(CreateGuardPost('GP_SouthNAElPaso', -31.8108, -106.7046953, true));
+}
+
+static function CreateWestNA(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('Portland', -45.5420, -122.9345));
+  Assets.AddItem(CreateCity('Vancouver', -49.2576, -123.2639, true));
+  Assets.AddItem(CreateCity('Edmonton', -53.5555, -113.7741));
+  Assets.AddItem(CreateGuardPost('GP_WestNASaltLakeCity', -40.7762, -112.2006, true));
+  Assets.AddItem(CreateGuardPost('GP_WestNASaskatoon', -52.1395, -106.7868, true));
+  Assets.AddItem(CreateGuardPost('GP_WestNAGreatFalls', -47.5047, -111.4435));
+  Assets.AddItem(CreateGuardPost('GP_WestNACalgary', -51.0127, -114.3543));
+}
+
+static function CreateEastNA(out array<X2DataTemplate> Assets)
+{
+  Assets.AddItem(CreateCity('Cleveland', -41.4946, -81.9860, true));
+  Assets.AddItem(CreateCity('NewYork', -40.6971, -74.2598));
+  Assets.AddItem(CreateCity('Washington', -38.8992, -77.1546));
+  Assets.AddItem(CreateCity('Ottawa', -45.2487, -76.3606));
+  Assets.AddItem(CreateGuardPost('GP_EastNAPittsburgh', -40.4312, -80.1205));
+  Assets.AddItem(CreateGuardPost('GP_EastNARochester', -43.1853, -77.7565));
+  Assets.AddItem(CreateGuardPost('GP_EastNAAlbany', -42.6679, -73.9507));
+  Assets.AddItem(CreateGuardPost('GP_EastNABoston', -42.3132, -71.1972, true));
+  Assets.AddItem(CreateGuardPost('GP_EastNASudbury', -46.5830, -81.6395, true));
+  Assets.AddItem(CreateGuardPost('GP_EastNAQuebecCity', -46.8560, -71.6218));
 }

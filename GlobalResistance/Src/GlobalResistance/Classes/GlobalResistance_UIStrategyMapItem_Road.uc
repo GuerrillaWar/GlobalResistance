@@ -43,13 +43,10 @@ function UpdateLinkMesh()
 	NewLocation = RoadState.GetWorldLocation();
 
   NewScale.Y = 1.0;
-  `log("ROADRENDER Location:" @ NewLocation);
-  `log("ROADRENDER Scale:" @ NewScale);
 
 	if(DesiredPath != CurrentMaterialPath || NewScale != CurrentScale || NewLocation != CurrentLocation)
 	{
 		MapItem3D.SetScale3D(NewScale);
-    `log("Render dat road.");
 		SetLoc(RoadState.Get2DLocation());
 		SetLocation(NewLocation);
 		MapItem3D.SetLocation(NewLocation);

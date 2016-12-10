@@ -21,10 +21,25 @@
     <Content Include="Config\XComGameBoard.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\XComMissions.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComParcels.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\GlobalResistance_md_GeneClinic_01.umap">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\GlobalResistance_Obj_SabotageCC.umap">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\GlobalResistance.int">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ReadMe.txt" />
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_CityTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_Earth.uc">
       <SubType>Content</SubType>
     </Content>
@@ -34,10 +49,16 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_GuardPostAsset.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_Haven.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionCalendar.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionSite.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_PointOfInterest.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_RegionLink.uc">
@@ -67,6 +88,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultCities.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultMissionSources.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultObjectives.uc">
       <SubType>Content</SubType>
     </Content>
@@ -80,6 +104,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_CityControlZone.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_GuardPost.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_ResistanceCamp.uc">
