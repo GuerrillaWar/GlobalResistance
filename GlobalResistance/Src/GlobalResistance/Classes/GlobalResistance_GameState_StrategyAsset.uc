@@ -10,9 +10,15 @@ struct StrategyAssetStructure
   var array<int> NextProductionTick;
 };
 
+struct GenericUnitCount
+{
+  var int Count;
+  var name CharacterTemplate;
+};
+
 struct StrategyAssetSquad
 {
-  var array<name> GenericUnits;  // stored in character template name only
+  var array<GenericUnitCount> GenericUnits;  // stored in character template name only
   var array<StateObjectReference> UniqueUnits; // stored as references to actual Unit States
 };
 
@@ -50,8 +56,7 @@ static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate
   Asset = GlobalResistance_GameState_StrategyAsset(NewGameState.CreateStateObject(Template.GameStateClass));
   Asset.m_TemplateName = TemplateName;
   Asset.m_AssetTemplate = Template;
-
-  
+  `log("Finished Creating Asset:" @ TemplateName);
 
   return Asset;
 }
@@ -80,6 +85,12 @@ function AddStructureOfType(name StructureType)
   }
 
   Structures.AddItem(Structure);
+}
+
+
+function AddSquad(StrategyAssetSquad Squad)
+{
+  Squads.AddItem(Squad);
 }
 
 
@@ -233,6 +244,12 @@ function SetWaypointsToAsset (
   }
 
   AddAssetWaypoint(Asset, Speed, Track);
+}
+
+
+function SetToRandomLocationInContent(XComGameState_Continent ContinentState)
+{
+  Location = ContinentState.GetRandomLocationInContinent(, self);
 }
 
 

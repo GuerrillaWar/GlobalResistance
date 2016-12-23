@@ -43,6 +43,21 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_Earth.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_AdventBlacksiteStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_AdventForgeStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_AlienPsiGateStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_AvatarFacilityStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_AvatarTransportBaseStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_CityStrategyAsset.uc">
       <SubType>Content</SubType>
     </Content>
@@ -97,10 +112,16 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultStrategyAssets.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyStart_AvatarAssets.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyStart_CityStrategyAssets.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_AvatarFacility.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_CityControlZone.uc">
