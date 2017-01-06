@@ -39,3 +39,7 @@ PoiText=""
 ObjectiveTextPools[0]="Plant X4 charges on the monument"
 ObjectiveTextPools[1]="Extract all XCOM soldiers"
 
+[DefaultSabotageBS X2MissionNarrativeTemplate]
+ObjectiveTextPools[0]="Plant X4 charges on the Blacksite"
+ObjectiveTextPools[1]="Extract all XCOM soldiers"
+

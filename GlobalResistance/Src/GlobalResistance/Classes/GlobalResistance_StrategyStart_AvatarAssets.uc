@@ -10,18 +10,27 @@ static function SetUpAssets(XComGameState StartState, optional bool bTutorialEna
 {
   local XComGameState_WorldRegion RegionState;
   local array<XComGameState_WorldRegion> AllRegions;
+  local GlobalResistance_GameState_StrategyAsset Asset;
+  local GlobalResistance_GameState_AvatarFacilityStrategyAsset AvatarFacility;
 
 	foreach StartState.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
 	{
     AllRegions.AddItem(RegionState);
   }
 
-  AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
-  AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
+  Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
+  AvatarFacility = GlobalResistance_GameState_AvatarFacilityStrategyAsset(Asset);
+  AvatarFacility.Doom = 1;
+  Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
+  AvatarFacility = GlobalResistance_GameState_AvatarFacilityStrategyAsset(Asset);
+  AvatarFacility.Doom = 1;
+  Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
+  Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
+  Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
 }
 
 
-static function AddStrategyAssetToRegion(
+static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegion(
   XComGameState StartState,
   name AssetName, 
   XComGameState_WorldRegion RegionState
@@ -37,5 +46,6 @@ static function AddStrategyAssetToRegion(
   Asset.SetToRandomLocationInContent(RegionState.GetContinent());
   `log("Location:" @ Asset.Location);
   StartState.AddStateObject(Asset);
+  return Asset;
 }
 

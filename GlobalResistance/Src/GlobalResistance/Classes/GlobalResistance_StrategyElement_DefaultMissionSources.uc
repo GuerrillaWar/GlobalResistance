@@ -9,6 +9,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	MissionSources = super.CreateTemplates();
 	MissionSources.AddItem(CreateSabotageCCZMonumentTemplate());
 	MissionSources.AddItem(CreateSabotageCCZGeneClinicTemplate());
+	MissionSources.AddItem(CreateSabotageAvatarFacilityTemplate());
+	MissionSources.AddItem(CreateSabotageAdventBlacksite());
 
 	return MissionSources;
 }
@@ -92,7 +94,7 @@ static function X2DataTemplate CreateSabotageCCZMonumentTemplate()
 	`CREATE_X2TEMPLATE(class'X2MissionSourceTemplate', Template, 'MissionSource_SabotageCCZMonument');
 	SetCommonTemplateVars(Template);
 	Template.OnSuccessFn = CCZMonumentOnSuccess;
-	Template.OnFailureFn = CCZMonumentOnFailure;
+	Template.OnFailureFn = RemoveMissionOnFailure;
 	return Template;
 }
 
@@ -116,7 +118,7 @@ static function X2DataTemplate CreateSabotageCCZGeneClinicTemplate()
 	`CREATE_X2TEMPLATE(class'X2MissionSourceTemplate', Template, 'MissionSource_SabotageCCZGeneClinic');
 	SetCommonTemplateVars(Template);
 	Template.OnSuccessFn = CCZGeneClinicOnSuccess;
-	Template.OnFailureFn = CCZGeneClinicOnFailure;
+	Template.OnFailureFn = RemoveMissionOnFailure;
 	return Template;
 }
 
@@ -132,7 +134,43 @@ function CCZGeneClinicOnSuccess(XComGameState NewGameState, XComGameState_Missio
   MissionState.RemoveEntity(NewGameState);
 }
 
-function CCZGeneClinicOnFailure(XComGameState NewGameState, XComGameState_MissionSite MissionState)
+
+static function X2DataTemplate CreateSabotageAvatarFacilityTemplate()
+{
+	local X2MissionSourceTemplate Template;
+
+	`CREATE_X2TEMPLATE(class'X2MissionSourceTemplate', Template, 'MissionSource_SabotageAvatarFacility');
+	SetCommonTemplateVars(Template);
+	Template.OnSuccessFn = DestroyStrategyAssetOnSuccess;
+	Template.OnFailureFn = RemoveMissionOnFailure;
+	return Template;
+}
+
+
+static function X2DataTemplate CreateSabotageAdventBlacksite()
+{
+	local X2MissionSourceTemplate Template;
+
+	`CREATE_X2TEMPLATE(class'X2MissionSourceTemplate', Template, 'MissionSource_SabotageAdventBlacksite');
+	SetCommonTemplateVars(Template);
+	Template.OnSuccessFn = DestroyStrategyAssetOnSuccess;
+	Template.OnFailureFn = RemoveMissionOnFailure;
+	return Template;
+}
+
+
+function DestroyStrategyAssetOnSuccess(XComGameState NewGameState, XComGameState_MissionSite MissionState)
+{
+  local GlobalResistance_GameState_AvatarFacilityStrategyAsset Asset;
+  local GlobalResistance_GameState_MissionSite GlobalResistanceMissionState;
+
+  GlobalResistanceMissionState = GlobalResistance_GameState_MissionSite(MissionState);
+  NewGameState.RemoveStateObject(GlobalResistanceMissionState.RelatedStrategySiteRef.ObjectID);
+  MissionState.RemoveEntity(NewGameState);
+}
+
+function RemoveMissionOnFailure(XComGameState NewGameState, XComGameState_MissionSite MissionState)
 {
 	MissionState.RemoveEntity(NewGameState);
 }
+

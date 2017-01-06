@@ -14,7 +14,7 @@ static function array<X2DataTemplate> CreateTemplates()
   AssetTemplates.AddItem(CreateAdventConvoy());
   AssetTemplates.AddItem(CreateGuardPost());
   // AssetTemplates.AddItem(CreateAdventTransportBase());
-  // AssetTemplates.AddItem(CreateAdventBlacksite());
+  AssetTemplates.AddItem(CreateAdventBlacksite());
   // AssetTemplates.AddItem(CreateAlienPsiGate());
   AssetTemplates.AddItem(CreateAvatarFacility());
   // AssetTemplates.AddItem(CreateAdventForge());
@@ -140,6 +140,25 @@ static function X2DataTemplate CreateAvatarFacility()
   Template.HasCoreStructure = true;
   Template.GameStateClass = class'GlobalResistance_GameState_AvatarFacilityStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
+  Template.PlotTypes.AddItem('Wilderness');
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAdventBlacksite()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventBlacksite');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.BaseInventoryCapacity = 1000;
+  Template.BaseUnitCapacity = 40;
+  Template.HasCoreStructure = true;
+  Template.GameStateClass = class'GlobalResistance_GameState_AdventBlacksiteStrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AdventBlacksite';
   Template.PlotTypes.AddItem('Wilderness');
 
   return Template;

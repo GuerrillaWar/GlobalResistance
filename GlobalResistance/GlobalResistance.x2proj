@@ -27,6 +27,9 @@
     <Content Include="Config\XComParcels.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Content\GlobalResistance_lg_BlackSite_01.umap">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Content\GlobalResistance_md_GeneClinic_01.umap">
       <SubType>Content</SubType>
     </Content>
@@ -65,6 +68,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_Haven.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_HeadquartersAlien.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_GameState_MissionCalendar.uc">
@@ -119,6 +125,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_AdventBlacksite.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset_AvatarFacility.uc">

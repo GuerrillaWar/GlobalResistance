@@ -1,4 +1,4 @@
-class GlobalResistance_UIStrategyAsset_AvatarFacility extends GlobalResistance_UIStrategyAsset;
+class GlobalResistance_UIStrategyAsset_AdventBlacksite extends GlobalResistance_UIStrategyAsset;
 
 //----------------------------------------------------------------------------
 // MEMBERS
@@ -60,7 +60,7 @@ simulated function BindLibraryItem()
 
     Button1 = Spawn(class'UIButton', ButtonGroup);
     Button1.SetResizeToText(false);
-    Button1.InitButton('Button0', "Sabotage Avatar Facility");
+    Button1.InitButton('Button0', "Sabotage Advent Blacksite");
 
     /* Button2 = Spawn(class'UIButton', ButtonGroup); */
     /* Button2.SetResizeToText(false); */
@@ -88,7 +88,7 @@ simulated function BuildMissionPanel()
 {
   // Send over to flash ---------------------------------------------------
   LibraryPanel.MC.BeginFunctionOp("UpdateGoldenPathInfoBlade");
-  LibraryPanel.MC.QueueString("Avatar Facility");
+  LibraryPanel.MC.QueueString("Advent Blacksite");
   LibraryPanel.MC.QueueString("Locale");
   LibraryPanel.MC.QueueString("img:///UILibrary_StrategyImages.X2StrategyMap.Alert_Advent_Facility");
   LibraryPanel.MC.QueueString("Relaxed Forces");
@@ -115,7 +115,7 @@ simulated function BuildOptionsPanel()
 
   LibraryPanel.MC.BeginFunctionOp("UpdateGoldenPathButtonBlade");
   LibraryPanel.MC.QueueString("XCOM ACTIONS");
-  LibraryPanel.MC.QueueString("Sabotage Avatar Facility");
+  LibraryPanel.MC.QueueString("Sabotage Advent Blacksite");
   LibraryPanel.MC.QueueString(class'UIUtilities_Text'.default.m_strGenericCancel);
 
 
@@ -136,7 +136,7 @@ simulated function BuildOptionsPanel()
 
 simulated public function OnSabotageClicked(UIButton button)
 {
-  FlyToMissionSite(StrategyAsset.SpawnMissionSite('MissionSource_SabotageAvatarFacility', 'Reward_None'));
+  FlyToMissionSite(StrategyAsset.SpawnMissionSite('MissionSource_SabotageAdventBlacksite', 'Reward_None'));
 }
 
 //-------------- EVENT HANDLING --------------------------------------------------------
