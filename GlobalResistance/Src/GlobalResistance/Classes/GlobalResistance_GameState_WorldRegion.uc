@@ -5,7 +5,7 @@ var() array<StateObjectReference>   GuardPosts;
 var() array<StateObjectReference>   Roads;
 
 function bool ShouldBeVisible() {
-  return false;
+  return true;
 }
 
 function array<XComGameState_WorldRegion> FindShortestPathToRegion(XComGameState_WorldRegion TargetRegion)

@@ -247,9 +247,9 @@ function SetWaypointsToAsset (
 }
 
 
-function SetToRandomLocationInContent(XComGameState_Continent ContinentState)
+function SetToRandomLocationInRegion(XComGameState_WorldRegion Region)
 {
-  Location = ContinentState.GetRandomLocationInContinent(, self);
+  Location = Region.GetRandomLocationInRegion(,,self);
 }
 
 
@@ -296,6 +296,13 @@ function UpdateMovement(float fDeltaT)
   local Vector DirectionVector;
   local float DistanceRemaining, TravelDistance;
   local StrategyAssetWaypoint CurrentWaypoint;
+  local XComGameState_WorldRegion RegionState;
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  if (Location.X == -1.0 && Location.Y == -1.0) {
+    RegionState = GetWorldRegion();
+    Location = RegionState.GetRandomLocationInRegion(,,self);
+  }
 
   // scale movement by time passage
   fDeltaT *= (`GAME.GetGeoscape().m_fTimeScale / `GAME.GetGeoscape().ONE_HOUR);

@@ -103,6 +103,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_MissionLogicListener.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_SquadSpawnManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyAssetTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -122,6 +125,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyStart_CityStrategyAssets.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_TacticalGameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset.uc">

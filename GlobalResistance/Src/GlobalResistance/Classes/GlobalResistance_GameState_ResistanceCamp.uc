@@ -18,7 +18,7 @@ static function ActivateCampInRegion(XComGameState NewGameState, XComGameState_W
   );
   Camp.Region = RegionState.GetReference();
   Camp.Continent = RegionState.GetContinent().GetReference();
-  Camp.SetToRandomLocationInContent(RegionState.GetContinent());
+  Camp.SetToRandomLocationInRegion(RegionState);
   NewGameState.AddStateObject(Camp);
 }
 

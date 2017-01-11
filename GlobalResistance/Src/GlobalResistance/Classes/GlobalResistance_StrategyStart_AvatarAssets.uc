@@ -43,7 +43,7 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
 
   Asset.Region = RegionState.GetReference();
   Asset.Continent = RegionState.GetContinent().GetReference();
-  Asset.SetToRandomLocationInContent(RegionState.GetContinent());
+  Asset.SetToRandomLocationInRegion(RegionState);
   `log("Location:" @ Asset.Location);
   StartState.AddStateObject(Asset);
   return Asset;
