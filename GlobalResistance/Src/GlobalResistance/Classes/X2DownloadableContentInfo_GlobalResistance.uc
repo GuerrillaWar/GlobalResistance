@@ -27,6 +27,7 @@ static event OnPreMission(XComGameState NewGameState, XComGameState_MissionSite 
   }
 
   MissionListener.RegisterToListen();
+
 }
 
 /// <summary>

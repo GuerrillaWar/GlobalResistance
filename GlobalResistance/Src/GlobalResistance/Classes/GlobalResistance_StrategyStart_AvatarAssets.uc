@@ -37,6 +37,7 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
 ) {
   local GlobalResistance_GameState_StrategyAsset Asset;
 
+
   `log("BUILDING" @ AssetName @ "at" @ RegionState.GetMyTemplateName());
   Asset = class'GlobalResistance_GameState_StrategyAsset'
     .static.CreateAssetFromTemplate(StartState, AssetName);
@@ -45,7 +46,35 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
   Asset.Continent = RegionState.GetContinent().GetReference();
   Asset.SetToRandomLocationInRegion(RegionState);
   `log("Location:" @ Asset.Location);
+
+  AddSquadToAsset(Asset);
+  AddSquadToAsset(Asset);
+  AddSquadToAsset(Asset);
+
   StartState.AddStateObject(Asset);
   return Asset;
+}
+
+static function AddSquadToAsset(GlobalResistance_GameState_StrategyAsset Asset)
+{
+  local StrategyAssetSquad Squad;
+  local GenericUnitCount UnitCount, BlankUnitCount;
+
+  UnitCount = BlankUnitCount;
+  UnitCount.Count = 1;
+  UnitCount.CharacterTemplate = 'AdvCaptainM1';
+  Squad.GenericUnits.AddItem(UnitCount);
+
+  UnitCount = BlankUnitCount;
+  UnitCount.Count = 3;
+  UnitCount.CharacterTemplate = 'AdvTrooperM1';
+  Squad.GenericUnits.AddItem(UnitCount);
+
+  UnitCount = BlankUnitCount;
+  UnitCount.Count = 2;
+  UnitCount.CharacterTemplate = 'AdvStunLancerM1';
+  Squad.GenericUnits.AddItem(UnitCount);
+
+  Asset.Squads.AddItem(Squad);
 }
 

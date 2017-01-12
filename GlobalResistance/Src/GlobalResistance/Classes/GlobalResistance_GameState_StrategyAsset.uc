@@ -94,6 +94,11 @@ function AddSquad(StrategyAssetSquad Squad)
 }
 
 
+function Array<StrategyAssetSquad> GetInitialSquads() {
+  return Squads;
+}
+
+
 function int GetStructureCount(name StructureType)
 {
   local StrategyAssetStructure Structure;

@@ -6,16 +6,14 @@ simulated state CreateTacticalGame
   {
     local XComGameState_Player IteratePlayerState;
     local XComGameState_BattleData BattleData;
-    local XComGameState_MissionSite MissionSiteState;
+    local GlobalResistance_GameState_MissionSite MissionSiteState;
+    local GlobalResistance_GameState_StrategyAsset StrategyAsset;
     local XComAISpawnManager SpawnManager;
-    local XComGameState_AIGroup AIGroup, ExtraAIGroup;
-    local XGAIGroup Group;
-    local StrategyAssetSquad Squad;
-    local GenericUnitCount UnitCount;
-    local int AlertLevel, ForceLevel;
-    local StateObjectReference Enemy;
+    local Array<StrategyAssetSquad> VanguardSquads;
+    local StrategyAssetSquad Squad, BlankSquad;
+    local GenericUnitCount UnitCount, BlankUnitCount;
     local Vector ObjectiveLocation, DropLocation;
-    local XComGameState_AIPlayerData kAIData;
+    local int AlertLevel, ForceLevel, Offset;
 
     BattleData = XComGameState_BattleData(CachedHistory.GetGameStateForObjectID(CachedBattleDataRef.ObjectID));
 
@@ -24,7 +22,7 @@ simulated state CreateTacticalGame
 
     if( BattleData.m_iMissionID > 0 )
     {
-      MissionSiteState = XComGameState_MissionSite(CachedHistory.GetGameStateForObjectID(BattleData.m_iMissionID));
+      MissionSiteState = GlobalResistance_GameState_MissionSite(CachedHistory.GetGameStateForObjectID(BattleData.m_iMissionID));
 
       if( MissionSiteState != None && MissionSiteState.SelectedMissionData.SelectedMissionScheduleName != '' )
       {
@@ -32,6 +30,9 @@ simulated state CreateTacticalGame
         ForceLevel = MissionSiteState.SelectedMissionData.ForceLevel;
       }
     }
+
+    SpawnManager = `SPAWNMGR;
+    SpawnManager.SpawnAllAliens(ForceLevel, AlertLevel, StartState, MissionSiteState);
 
     // After spawning, the AI player still needs to sync the data
     foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState)
@@ -43,34 +44,27 @@ simulated state CreateTacticalGame
       }
     }
 
-    UnitCount.Count = 4;
-    UnitCount.CharacterTemplate = 'AdvTrooperM1';
-    Squad.GenericUnits.AddItem(UnitCount);
+    if (MissionSiteState.RelatedStrategySiteRef.ObjectID != 0)
+    {
+      StrategyAsset = GlobalResistance_GameState_StrategyAsset(
+        CachedHistory.GetGameStateForObjectID(
+          MissionSiteState.RelatedStrategySiteRef.ObjectID
+        )
+      );
+      VanguardSquads = StrategyAsset.GetInitialSquads();
+    }
 
-    kAIData = XComGameState_AIPlayerData(
-      StartState.CreateStateObject(
-        class'XComGameState_AIPlayerData',
-        XGAIPlayer(`BATTLE.GetAIPlayer()).GetAIDataID()
-      )
-    );
-
+    Offset = 0;
     ObjectiveLocation = BattleData.MapData.ObjectiveLocation;
 
-    DropLocation = ObjectiveLocation;
-
-
-    class'GlobalResistance_SquadSpawnManager'.static.SpawnSquad(
-      Squad, DropLocation, StartState, kAIData, true
-    );
-
-    // After spawning, the AI player still needs to sync the data
-    /* foreach StartState.IterateByClassType(class'XComGameState_Player', IteratePlayerState) */
-    /* { */
-    /*   if( IteratePlayerState.TeamFlag == eTeam_Alien ) */
-    /*   { */        
-    /*     XGAIPlayer( CachedHistory.GetVisualizer(IteratePlayerState.ObjectID) ).UpdateDataToAIGameState(true); */
-    /*     break; */
-    /*   } */
-    /* } */
+    foreach VanguardSquads(Squad)
+    {
+      DropLocation = ObjectiveLocation;
+      DropLocation.X = DropLocation.X + Offset;
+      class'GlobalResistance_SquadSpawnManager'.static.SpawnSquad(
+        Squad, DropLocation, StartState, false
+      );
+      Offset = Offset + (96 * 10);
+    }
   }
 }
