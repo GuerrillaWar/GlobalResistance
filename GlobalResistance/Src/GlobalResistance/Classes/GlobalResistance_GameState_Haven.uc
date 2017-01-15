@@ -2,9 +2,9 @@ class GlobalResistance_GameState_Haven
 extends XComGameState_Haven;
 
 function bool CanBeScanned() {
-  return false;
+  return true;
 }
 
 function bool ShouldBeVisible() {
-  return false;
+  return true;
 }

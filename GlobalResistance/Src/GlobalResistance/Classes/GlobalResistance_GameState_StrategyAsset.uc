@@ -22,6 +22,12 @@ struct StrategyAssetSquad
   var array<StateObjectReference> UniqueUnits; // stored as references to actual Unit States
 };
 
+struct AssetSearchPath
+{
+  var array<GlobalResistance_GameState_StrategyAsset> Nodes;
+  var float Distance;
+};
+
 struct StrategyAssetWaypoint
 {
   var name Speed;
@@ -33,6 +39,7 @@ struct StrategyAssetWaypoint
 var() array<StrategyAssetStructure> Structures;
 var() array<StrategyAssetSquad> Squads;
 var() array<StateObjectReference> Inventory;
+var() array<StateObjectReference> ConnectedRoads;
 var() array<StrategyAssetWaypoint> Waypoints;
 var() Vector Destination;
 var() Vector Velocity;
@@ -214,37 +221,159 @@ function float GetDistance(Vector From, Vector To)
 }
 
 
+
+
+function array<GlobalResistance_GameState_StrategyAsset> GetShortestPathToAsset (
+  GlobalResistance_GameState_StrategyAsset Asset
+) {
+  local XComGameStateHistory History;
+  local GlobalResistance_GameState_Road ChildRoad;
+  local GlobalResistance_GameState_StrategyAsset
+    NearestNodeToTarget, NearestNodeToSelf, TestNode, ChildNode;
+  local array<AssetSearchPath> arrSearchPaths, arrSolutionPaths;
+  local AssetSearchPath StartPath, TestPath, NewPath;
+  local StateObjectReference StateRef;
+  local float Distance, SelfDistance, TargetDistance;
+
+  History = `XCOMHISTORY;
+  StartPath.Nodes.AddItem(self);
+  StartPath.Distance = 0;
+
+  SelfDistance = -1;
+  TargetDistance = -1;
+
+  `log("Testing Nearest Nodes");
+  foreach History.IterateByClassType(class'GlobalResistance_GameState_StrategyAsset', TestNode)
+  {
+    Distance = GetDistance(Location, TestNode.Location);
+    if (
+      TestNode.ConnectedRoads.Length > 0 &&
+      (Distance < SelfDistance || SelfDistance < 0)
+    ) {
+      SelfDistance = Distance;
+      NearestNodeToSelf = TestNode;
+    }
+
+
+    Distance = GetDistance(Asset.Location, TestNode.Location);
+    if (
+      TestNode.ConnectedRoads.Length > 0 &&
+      (Distance < TargetDistance || TargetDistance < 0)
+    ) {
+      TargetDistance = Distance;
+      NearestNodeToTarget = TestNode;
+    }
+  }
+
+  StartPath.Nodes.AddItem(NearestNodeToSelf);
+  StartPath.Distance = SelfDistance;
+  `log("Origin" @ ObjectID);
+  `log("Found NearestNodeToSelf" @ NearestNodeToSelf.ObjectID);
+  `log("Found NearestNodeToTarget" @ NearestNodeToTarget.ObjectID);
+  `log("Target" @ Asset.ObjectID);
+  `log("StartPath.Distance:" @ SelfDistance);
+
+  // test shortest distance direct
+
+  arrSearchPaths.AddItem(StartPath);
+
+  while (arrSearchPaths.Length > 0)
+  {
+    // Pop nearest region off queue
+    TestPath = arrSearchPaths[0];
+    TestNode = TestPath.Nodes[TestPath.Nodes.Length - 1];
+    arrSearchPaths.Remove(0, 1);
+    `log("Searching" @ TestPath.Distance);
+
+    // If the search has started testing region paths which are longer than a potential solution, break
+    // We want the smallest cost between all paths with the fewest links. If we have a short solution, don't test longer ones.
+    if (arrSolutionPaths.Length > 0 && TestPath.Distance > arrSolutionPaths[0].Distance)
+    {
+      `log("Break no more searching");
+      break;
+    }
+
+
+    if (TestNode.ObjectID == NearestNodeToTarget.ObjectID)
+    {
+      arrSolutionPaths.AddItem(TestPath);
+      `log("Arrived At Solution of Distance:" @ TestPath.Distance);
+      continue;
+    }
+
+    `log("Connected Roads From Node" @ TestNode.ObjectID @ ":" @ TestNode.ConnectedRoads.Length);
+    foreach TestNode.ConnectedRoads(StateRef)
+    {
+      ChildRoad = GlobalResistance_GameState_Road(
+        History.GetGameStateForObjectID(StateRef.ObjectID)
+      );
+
+      if (ChildRoad.StateRefA.ObjectID != TestNode.ObjectID) {
+        ChildNode = GlobalResistance_GameState_StrategyAsset(
+          History.GetGameStateForObjectID(ChildRoad.StateRefA.ObjectID)
+        );
+      } else {
+        ChildNode = GlobalResistance_GameState_StrategyAsset(
+          History.GetGameStateForObjectID(ChildRoad.StateRefB.ObjectID)
+        );
+      }
+
+      if (TestPath.Nodes.Find(ChildNode) == INDEX_NONE)
+      {
+        NewPath = TestPath;
+
+        Distance = GetDistance(
+          ChildNode.Location, TestPath.Nodes[TestPath.Nodes.Length - 1].Location
+        );
+
+        NewPath.Nodes.AddItem(ChildNode);
+
+        `log("Distance Cross Road" @ Distance);
+
+        NewPath.Distance = NewPath.Distance + Distance;
+        `log("Adding Node" @ ChildNode.ObjectID @ " at dist" @ NewPath.Distance);
+
+        arrSearchPaths.AddItem(NewPath);
+      }
+    }
+  }
+
+  NewPath = StartPath; // Reset NewPath to match StartPath
+  NewPath.Distance = -1; // Then use it to try and the lowest cost Best Path
+  `log("Checking Solutions:" @ arrSolutionPaths.Length);
+  foreach arrSolutionPaths(TestPath)
+  {
+    if (NewPath.Distance == -1)
+    {
+      NewPath = TestPath;
+    }
+    else if (TestPath.Distance < NewPath.Distance)
+    {
+      NewPath = TestPath;
+    }
+  }
+
+  return NewPath.Nodes;
+}
+
+
+
+
 function SetWaypointsToAsset (
   GlobalResistance_GameState_StrategyAsset Asset,
   name Speed,
   bool Track = false
 ) {
-  local GlobalResistance_GameState_WorldRegion AssetRegion;
-  local XComGameState_WorldRegion PathRegion, LastRegion;
-  local X2WorldRegionTemplate RegionTemplate;
-  local RegionLinkTraverse Traverse;
-  local Array<XComGameState_WorldRegion> RegionChain;
+  local GlobalResistance_GameState_StrategyAsset PathNode;
+  local Array<GlobalResistance_GameState_StrategyAsset> NodeChain;
 
-  AssetRegion = Asset.GetNearestWorldRegion();
-  RegionChain = GetNearestWorldRegion().FindShortestPathToRegion(AssetRegion);
+  NodeChain = GetShortestPathToAsset(Asset);
 
-  `log("Building Path:" @ RegionChain.Length);
+  `log("Building Path:" @ NodeChain.Length);
 
-  if (RegionChain.Length > 1) {
-    foreach RegionChain(PathRegion) {
-      if (LastRegion.ObjectID != 0)
-      {
-        RegionTemplate = PathRegion.GetMyTemplate();
-        `log("--" @ RegionTemplate.DisplayName);
-        Traverse = class'GlobalResistance_GameState_RegionLink'.static.GetRegionLinkTraverse(
-          LastRegion, PathRegion
-        );
-        AddWaypoint(Traverse.From, Speed);
-        AddWaypoint(Traverse.To, Speed);
-      }
-
-      LastRegion = PathRegion;
-
+  if (NodeChain.Length > 1) {
+    foreach NodeChain(PathNode) {
+      AddWaypoint(PathNode.Location, Speed);
     }
   }
 

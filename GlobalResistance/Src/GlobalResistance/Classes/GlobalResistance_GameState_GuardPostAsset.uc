@@ -16,3 +16,14 @@ function name GetGuardPostName()
 {
   return m_GPTemplateName;
 }
+
+function vector GetMeshScale()
+{
+  local vector ScaleVector;
+
+  ScaleVector.X = 0.5;
+  ScaleVector.Y = 0.5;
+  ScaleVector.Z = 0.5;
+
+  return ScaleVector;
+}

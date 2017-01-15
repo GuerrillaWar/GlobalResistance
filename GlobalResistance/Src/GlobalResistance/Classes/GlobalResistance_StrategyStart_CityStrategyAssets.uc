@@ -31,6 +31,7 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
 {
   local GlobalResistance_GameState_WorldRegion RegionState;
   local GlobalResistance_GameState_CityStrategyAsset CCZ;
+  local array<GlobalResistance_GameState_CityStrategyAsset> arrCCZ;
   local GlobalResistance_GameState_GuardPostAsset GPA;
   local array<X2StrategyElementTemplate> arrCityTemplates;
   local array<X2StrategyElementTemplate> arrGPTemplates;
@@ -165,9 +166,14 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
     }
 
     RegionState = GetNearestRegion(StartState, RoadFrom.Location);
+    `log("BuildRoadCall");
     RoadAsset = class'GlobalResistance_GameState_Road'.static.BuildRoad(
       StartState, RoadFrom, RoadTo, Road.ConnectsRegions
     );
+    RoadFrom.ConnectedRoads.AddItem(RoadAsset.GetReference());
+    RoadTo.ConnectedRoads.AddItem(RoadAsset.GetReference());
+    `log("RoadFrom ConnectedRoads Length" @ RoadFrom.ConnectedRoads.Length);
+    `log("RoadTo ConnectedRoads Length" @ RoadTo.ConnectedRoads.Length);
 
     RoadAsset.Region = RegionState.GetReference();
     RoadAsset.Continent = RegionState.GetContinent().GetReference();

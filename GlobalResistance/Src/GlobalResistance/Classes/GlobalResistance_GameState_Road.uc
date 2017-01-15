@@ -42,14 +42,17 @@ static function GlobalResistance_GameState_Road BuildRoad(
 
   // must compute on demand inside GetWorldLocation
 
+  `log("RoadPosA");
   Road.Location = From.Location;
   Road.WorldLocA = From.Location;
   Road.WorldPosA = `EARTH.ConvertEarthToWorld(From.Get2DLocation(), false);
   Road.StateRefA = From.GetReference();
+  `log("RoadPosB");
   Road.WorldLocB = To.Location;
   Road.WorldPosB = `EARTH.ConvertEarthToWorld(To.Get2DLocation(), false);
   Road.StateRefB = To.GetReference();
   Road.RoadLength = VSize(Road.WorldPosA - Road.WorldPosB);
+  `log("RoadConnection");
   Road.Connector = Connects;
   Road.Location.z = 0.4;
   return Road;
