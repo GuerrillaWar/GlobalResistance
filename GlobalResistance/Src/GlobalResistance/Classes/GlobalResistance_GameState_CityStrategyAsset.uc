@@ -20,7 +20,7 @@ function LoadCityTemplate(GlobalResistance_CityTemplate Template)
 function SetNextDispatch()
 {
   NextDispatch = GetCurrentTime();
-  class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextDispatch, 24 * 12);
+  class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextDispatch, 24 * 4);
   `log("Next Dispatch for" @ GetCityDisplayName() @ " - " @
     class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(NextDispatch)
   );

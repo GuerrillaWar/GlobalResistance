@@ -22,9 +22,11 @@ struct StrategyAssetSquad
   var array<StateObjectReference> UniqueUnits; // stored as references to actual Unit States
 };
 
-struct AssetSearchPath
+struct AssetSearchNode
 {
-  var array<GlobalResistance_GameState_StrategyAsset> Nodes;
+  var GlobalResistance_GameState_StrategyAsset Node;
+  var int ObjectID;
+  var int OptimalSourceID;
   var float Distance;
 };
 
@@ -228,135 +230,118 @@ function array<GlobalResistance_GameState_StrategyAsset> GetShortestPathToAsset 
 ) {
   local XComGameStateHistory History;
   local GlobalResistance_GameState_Road ChildRoad;
+  local array<GlobalResistance_GameState_StrategyAsset> FinalPath;
   local GlobalResistance_GameState_StrategyAsset
     NearestNodeToTarget, NearestNodeToSelf, TestNode, ChildNode;
-  local array<AssetSearchPath> arrSearchPaths, arrSolutionPaths;
-  local AssetSearchPath StartPath, TestPath, NewPath;
-  local StateObjectReference StateRef;
-  local float Distance, SelfDistance, TargetDistance;
+  local array<AssetSearchNode> UnvisitedSet, VisitedSet;
+  local AssetSearchNode BlankNode, TestSearchNode, ChildSearchNode, IterNode;
+  local StateObjectReference StateRef, ChildRef;
+  local float Distance, SelfDistance, DirectDistance, TargetDistance, LowestDistance;
+  local int Ix, IterIx;
+  local bool bIsValid, bFoundTarget;
 
   History = `XCOMHISTORY;
-  StartPath.Nodes.AddItem(self);
-  StartPath.Distance = 0;
-
   SelfDistance = -1;
   TargetDistance = -1;
 
-  `log("Testing Nearest Nodes");
   foreach History.IterateByClassType(class'GlobalResistance_GameState_StrategyAsset', TestNode)
   {
     Distance = GetDistance(Location, TestNode.Location);
-    if (
-      TestNode.ConnectedRoads.Length > 0 &&
-      (Distance < SelfDistance || SelfDistance < 0)
-    ) {
+    bIsValid = TestNode.ConnectedRoads.Length > 0;
+
+    if (bIsValid)
+    {
+      TestSearchNode = BlankNode;
+      TestSearchNode.ObjectID = TestNode.ObjectID;
+      TestSearchNode.Node = TestNode;
+      TestSearchNode.Distance = 100000000;
+      UnvisitedSet.AddItem(TestSearchNode);
+    }
+
+    if (bIsValid && (Distance < SelfDistance || SelfDistance < 0))
+    {
       SelfDistance = Distance;
       NearestNodeToSelf = TestNode;
     }
 
-
     Distance = GetDistance(Asset.Location, TestNode.Location);
-    if (
-      TestNode.ConnectedRoads.Length > 0 &&
-      (Distance < TargetDistance || TargetDistance < 0)
-    ) {
+    if (bIsValid && (Distance < TargetDistance || TargetDistance < 0))
+    {
       TargetDistance = Distance;
       NearestNodeToTarget = TestNode;
     }
   }
 
-  StartPath.Nodes.AddItem(NearestNodeToSelf);
-  StartPath.Distance = SelfDistance;
-  `log("Origin" @ ObjectID);
-  `log("Found NearestNodeToSelf" @ NearestNodeToSelf.ObjectID);
-  `log("Found NearestNodeToTarget" @ NearestNodeToTarget.ObjectID);
-  `log("Target" @ Asset.ObjectID);
-  `log("StartPath.Distance:" @ SelfDistance);
-
   // test shortest distance direct
+  // DirectDistance = GetDistance(Location, Asset.Location);
 
-  arrSearchPaths.AddItem(StartPath);
+  Ix = UnvisitedSet.Find('ObjectID', NearestNodeToSelf.ObjectID);
+  UnvisitedSet[Ix].Distance = 0;
+  UnvisitedSet[Ix].OptimalSourceID = -1;
 
-  while (arrSearchPaths.Length > 0)
+  while (UnvisitedSet.Length > 0 && !bFoundTarget)
   {
-    // Pop nearest region off queue
-    TestPath = arrSearchPaths[0];
-    TestNode = TestPath.Nodes[TestPath.Nodes.Length - 1];
-    arrSearchPaths.Remove(0, 1);
-    `log("Searching" @ TestPath.Distance);
-
-    // If the search has started testing region paths which are longer than a potential solution, break
-    // We want the smallest cost between all paths with the fewest links. If we have a short solution, don't test longer ones.
-    if (arrSolutionPaths.Length > 0 && TestPath.Distance > arrSolutionPaths[0].Distance)
-    {
-      `log("Break no more searching");
-      break;
-    }
-
-
-    if (TestNode.ObjectID == NearestNodeToTarget.ObjectID)
-    {
-      arrSolutionPaths.AddItem(TestPath);
-      `log("Arrived At Solution of Distance:" @ TestPath.Distance);
-      continue;
-    }
-
-    `log("Connected Roads From Node" @ TestNode.ObjectID @ ":" @ TestNode.ConnectedRoads.Length);
-    foreach TestNode.ConnectedRoads(StateRef)
-    {
-      ChildRoad = GlobalResistance_GameState_Road(
-        History.GetGameStateForObjectID(StateRef.ObjectID)
-      );
-
-      if (ChildRoad.StateRefA.ObjectID != TestNode.ObjectID) {
-        ChildNode = GlobalResistance_GameState_StrategyAsset(
-          History.GetGameStateForObjectID(ChildRoad.StateRefA.ObjectID)
-        );
-      } else {
-        ChildNode = GlobalResistance_GameState_StrategyAsset(
-          History.GetGameStateForObjectID(ChildRoad.StateRefB.ObjectID)
-        );
+    LowestDistance = 10000000;
+    foreach UnvisitedSet(IterNode, IterIx) {
+      if (IterNode.Distance < LowestDistance) {
+        LowestDistance = IterNode.Distance;
+        Ix = IterIx;
       }
+    }
 
-      if (TestPath.Nodes.Find(ChildNode) == INDEX_NONE)
+
+    TestSearchNode = UnvisitedSet[Ix];
+    UnvisitedSet.Remove(Ix, 1);
+    VisitedSet.AddItem(TestSearchNode);
+
+    if (TestSearchNode.ObjectID == NearestNodeToTarget.ObjectID)
+    {
+      bFoundTarget = true;
+    }
+    else
+    {
+      foreach TestSearchNode.Node.ConnectedRoads(StateRef)
       {
-        NewPath = TestPath;
-
-        Distance = GetDistance(
-          ChildNode.Location, TestPath.Nodes[TestPath.Nodes.Length - 1].Location
+        ChildRoad = GlobalResistance_GameState_Road(
+          History.GetGameStateForObjectID(StateRef.ObjectID)
         );
 
-        NewPath.Nodes.AddItem(ChildNode);
+        if (ChildRoad.StateRefA.ObjectID != TestSearchNode.ObjectID) {
+          ChildRef = ChildRoad.StateRefA;
+        } else {
+          ChildRef = ChildRoad.StateRefB;
+        }
 
-        `log("Distance Cross Road" @ Distance);
+        Ix = UnvisitedSet.Find('ObjectID', ChildRef.ObjectID);
+        ChildSearchNode = UnvisitedSet[Ix];
+        if (Ix != INDEX_NONE)
+        {
+          Distance = GetDistance(
+            TestSearchNode.Node.Location, ChildSearchNode.Node.Location
+          );
 
-        NewPath.Distance = NewPath.Distance + Distance;
-        `log("Adding Node" @ ChildNode.ObjectID @ " at dist" @ NewPath.Distance);
-
-        arrSearchPaths.AddItem(NewPath);
+          if (Distance < ChildSearchNode.Distance)
+          {
+            UnvisitedSet[Ix].Distance = Distance;
+            UnvisitedSet[Ix].OptimalSourceID = TestSearchNode.ObjectID;
+          }
+        }
       }
     }
   }
 
-  NewPath = StartPath; // Reset NewPath to match StartPath
-  NewPath.Distance = -1; // Then use it to try and the lowest cost Best Path
-  `log("Checking Solutions:" @ arrSolutionPaths.Length);
-  foreach arrSolutionPaths(TestPath)
+  // test path against direct route
+  while (TestSearchNode.OptimalSourceID != -1)
   {
-    if (NewPath.Distance == -1)
-    {
-      NewPath = TestPath;
-    }
-    else if (TestPath.Distance < NewPath.Distance)
-    {
-      NewPath = TestPath;
-    }
+    FinalPath.InsertItem(0, TestSearchNode.Node);
+    Ix = VisitedSet.Find('ObjectID', TestSearchNode.OptimalSourceID);
+    TestSearchNode = VisitedSet[Ix];
   }
 
-  return NewPath.Nodes;
+  FinalPath.InsertItem(0, TestSearchNode.Node);
+
+  return FinalPath;
 }
-
-
 
 
 function SetWaypointsToAsset (
