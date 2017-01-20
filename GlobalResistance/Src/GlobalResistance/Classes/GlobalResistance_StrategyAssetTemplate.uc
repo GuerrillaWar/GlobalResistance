@@ -7,25 +7,38 @@ enum StrategyAssetCategory
   eStrategyAssetCategory_Mobile,
 };
 
+
 struct StrategyAssetSpeed
 {
   var name ID;
   var string FriendlyName;
+  var bool TraverseAir;
+  var bool TraverseGroundRoad;
+  var bool TraverseGroundJungle;
+  var bool TraverseGroundMountain;
+  var bool TraverseSea;
   var float Velocity;
 };
 
+
+struct StrategyAssetUpkeepDefinition
+{
+  var array<ArtifactCost> Cost;
+  var array<name> Penalties;
+  var int UpkeepFrequency;
+  var name UpkeepID;
+}
+
+
 struct StrategyAssetProductionDefinition
 {
-  var name ItemTemplateName;
-  var int CycleQuantity;
-  var array<ArtifactCost> CycleCost; // costs tied to this production
-  var int CycleHours;
-
-  structdefaultproperties
-  {
-    CycleHours = 168;
-  }
+  var array<ArtifactCost> Inputs;
+  var array<ArtifactCost> Outputs;
+  var int ProductionTime; // hours
+  var name ProductionID;
 };
+
+
 
 struct StrategyAssetStructureDefinition
 {
@@ -37,9 +50,8 @@ struct StrategyAssetStructureDefinition
   var StrategyRequirement BuildRequirements;
 
   // ONGOING PARAMS
-  var array<StrategyAssetProductionDefinition> BaseProductionCapability;
-  var array<ArtifactCost> UpkeepCost;
-  var int UpkeepHours;
+  var array<StrategyAssetProductionDefinition> Production;
+  var array<StrategyAssetUpkeepDefinition> Upkeep;
 
   // STORAGE PARAMS
   var int UnitCapacity;
@@ -48,19 +60,16 @@ struct StrategyAssetStructureDefinition
   // MISSION PARAM
   var array<name> ParcelObjectiveTags;
   var array<name> PCPObjectiveTags;
-
-  structdefaultproperties
-  {
-    UnitCapacity = 0;
-    InventoryCapacity = 0;
-    UpkeepHours = 168;
-  }
 };
+
+
 
 var StrategyAssetCategory AssetCategory;
 var eTeam DefaultTeam;
-var int BaseInventoryCapacity;
-var int BaseUnitCapacity;
+var int InventoryCapacity;
+var int UnitCapacity;
+var array<StrategyAssetUpkeepDefinition> Upkeep;
+var array<StrategyAssetProductionDefinition> Production;
 
 var bool HasCoreStructure;
 var StrategyAssetStructureDefinition CoreStructure; // must be immediately built if this is assetCategory Buildable;
@@ -70,6 +79,17 @@ var class<GlobalResistance_GameState_StrategyAsset> GameStateClass;
 var class<GlobalResistance_UIStrategyAsset> StrategyUIClass;
 
 var array<name> PlotTypes;
+
+
+delegate int CalculateInventoryCapacityDelegate(GlobalResistance_GameState_StrategyAsset Asset);
+delegate int CalculateUnitCapacityDelegate(GlobalResistance_GameState_StrategyAsset Asset);
+delegate array<StrategyAssetUpkeep> CalculateUpkeep(GlobalResistance_GameState_StrategyAsset Asset);
+delegate array<StrategyAssetProduction> CalculateProduction(GlobalResistance_GameState_StrategyAsset Asset);
+
+
+
+
+
 
 function StrategyAssetStructureDefinition GetStructureDefinition(name StructureType)
 {

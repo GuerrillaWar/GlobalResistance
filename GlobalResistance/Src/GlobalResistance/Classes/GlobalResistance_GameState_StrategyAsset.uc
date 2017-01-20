@@ -2,13 +2,54 @@ class GlobalResistance_GameState_StrategyAsset
 extends XComGameState_GeoscapeEntity
 dependson(GlobalResistance_StrategyAssetTemplate);
 
-struct StrategyAssetStructure
+
+struct AssetSearchNode
 {
-  var name Type;
-  var int BuildHoursRemaining;
-  var int NextUpkeepTick;
-  var array<int> NextProductionTick;
+  var GlobalResistance_GameState_StrategyAsset Node;
+  var int ObjectID;
+  var int OptimalSourceID;
+  var float Distance;
 };
+
+
+
+/* struct StrategyAssetStructure */
+/* { */
+/*   var name Type; */
+/*   var int BuildHoursRemaining; */
+/*   var int NextUpkeepTick; */
+/*   var array<int> NextProductionTick; */
+/* }; */
+
+struct StrategyAssetUpkeep
+{
+  var array<ArtifactCost> Cost;
+  var array<name> Penalties;
+  var int UpkeepFrequency; // hours
+  var TDateTime NextTick;
+  var name UpkeepID;
+};
+
+struct StrategyAssetUpkeepPenalty
+{
+  var name SourceUpkeepID;
+  var name Penalty; // reference a UpkeepPenaltyTemplate.
+  var TDateTime PenaltyStartTime;
+};
+
+struct StrategyAssetProduction
+{
+  var array<ArtifactCost> Inputs;
+  var array<ArtifactCost> Outputs;
+  var int ProductionTime; // hours
+  var TDateTime NextCompletion;
+  var name ProductionID;
+};
+
+
+
+
+
 
 struct GenericUnitCount
 {
@@ -22,13 +63,6 @@ struct StrategyAssetSquad
   var array<StateObjectReference> UniqueUnits; // stored as references to actual Unit States
 };
 
-struct AssetSearchNode
-{
-  var GlobalResistance_GameState_StrategyAsset Node;
-  var int ObjectID;
-  var int OptimalSourceID;
-  var float Distance;
-};
 
 struct StrategyAssetWaypoint
 {

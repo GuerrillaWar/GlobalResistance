@@ -38,7 +38,7 @@ static function AddSupplyCentreStructureDef(GlobalResistance_StrategyAssetTempla
   
   ProductionDef.ItemTemplateName = 'Supplies';
   ProductionDef.CycleQuantity = 100;
-  StructureDef.BaseProductionCapability.AddItem(ProductionDef);
+  StructureDef.Production.AddItem(ProductionDef);
 
   Template.AllowedStructures.AddItem(StructureDef);
 }
@@ -59,7 +59,7 @@ static function AddGeneClinicStructureDef(GlobalResistance_StrategyAssetTemplate
   
   ProductionDef.ItemTemplateName = 'Supplies';
   ProductionDef.CycleQuantity = 10;
-  StructureDef.BaseProductionCapability.AddItem(ProductionDef);
+  StructureDef.Production.AddItem(ProductionDef);
 
   Template.AllowedStructures.AddItem(StructureDef);
 }
@@ -72,8 +72,8 @@ static function X2DataTemplate CreateCityControlZone()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 2000;
-  Template.BaseUnitCapacity = 1000;
+  Template.InventoryCapacity = 2000;
+  Template.UnitCapacity = 1000;
   Template.HasCoreStructure = false;
   Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
@@ -94,8 +94,8 @@ static function X2DataTemplate CreateSlumCity()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 1000;
-  Template.BaseUnitCapacity = 400;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 400;
   Template.HasCoreStructure = false;
   Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
@@ -115,8 +115,8 @@ static function X2DataTemplate CreateGuardPost()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 200;
-  Template.BaseUnitCapacity = 15;
+  Template.InventoryCapacity = 200;
+  Template.UnitCapacity = 15;
   Template.HasCoreStructure = true;
   Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_GuardPost';
@@ -135,8 +135,8 @@ static function X2DataTemplate CreateAvatarFacility()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 1000;
-  Template.BaseUnitCapacity = 40;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 40;
   Template.HasCoreStructure = true;
   Template.GameStateClass = class'GlobalResistance_GameState_AvatarFacilityStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
@@ -154,8 +154,8 @@ static function X2DataTemplate CreateAdventBlacksite()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 1000;
-  Template.BaseUnitCapacity = 40;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 40;
   Template.HasCoreStructure = true;
   Template.GameStateClass = class'GlobalResistance_GameState_AdventBlacksiteStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AdventBlacksite';
@@ -173,8 +173,8 @@ static function X2DataTemplate CreateResistanceCamp()
 
   Template.AssetCategory = eStrategyAssetCategory_Buildable;
   Template.DefaultTeam = eTeam_XCom;
-  Template.BaseInventoryCapacity = 1000;
-  Template.BaseUnitCapacity = 100;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 100;
   Template.HasCoreStructure = false;
   Template.GameStateClass = class'GlobalResistance_GameState_ResistanceCamp';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
@@ -193,8 +193,8 @@ static function X2DataTemplate CreateAdventConvoy()
 
   Template.AssetCategory = eStrategyAssetCategory_Mobile;
   Template.DefaultTeam = eTeam_Alien;
-  Template.BaseInventoryCapacity = 200;
-  Template.BaseUnitCapacity = 15;
+  Template.InventoryCapacity = 200;
+  Template.UnitCapacity = 15;
   Template.HasCoreStructure = false;
   Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
