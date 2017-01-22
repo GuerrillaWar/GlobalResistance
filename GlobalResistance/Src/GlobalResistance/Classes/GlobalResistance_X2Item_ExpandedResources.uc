@@ -8,6 +8,8 @@ static function array<X2DataTemplate> CreateTemplates()
   Resources.AddItem(CreateMunitions());
   Resources.AddItem(CreateConventionalFuel());
   Resources.AddItem(CreateMedicalSupplies());
+  Resources.AddItem(CreateAbductedBodies());
+  Resources.AddItem(CreateAvatarVials());
 
   return Resources;
 }
@@ -74,6 +76,38 @@ static function X2DataTemplate CreateMedicalSupplies()
   Template.strImage = "img:///UILibrary_StrategyImages.X2InventoryIcons.Inv_Alien_Alloy";
   Template.ItemCat = 'resource';
   Template.TradingPostValue = 1;
+  Template.MaxQuantity = 100;
+  Template.CanBeBuilt = false;
+  Template.HideInInventory = true;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAbductedBodies()
+{
+  local X2ItemTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'X2ItemTemplate', Template, 'AbductedBodies');
+
+  Template.strImage = "img:///UILibrary_StrategyImages.X2InventoryIcons.Inv_Alien_Alloy";
+  Template.ItemCat = 'resource';
+  Template.MaxQuantity = 100;
+  Template.CanBeBuilt = false;
+  Template.HideInInventory = true;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAvatarVials()
+{
+  local X2ItemTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'X2ItemTemplate', Template, 'AvatarVials');
+
+  Template.strImage = "img:///UILibrary_StrategyImages.X2InventoryIcons.Inv_Alien_Alloy";
+  Template.ItemCat = 'resource';
   Template.MaxQuantity = 100;
   Template.CanBeBuilt = false;
   Template.HideInInventory = true;

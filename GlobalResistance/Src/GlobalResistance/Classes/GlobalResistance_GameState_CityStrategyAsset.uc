@@ -75,39 +75,6 @@ function GlobalResistance_GameState_MissionSite GenerateMonumentMission()
 }
 
 
-function UpdateGameBoard()
-{
-	local XComGameState NewGameState;
-	local GlobalResistance_GameState_CityStrategyAsset NewCityState;
-	local bool bSuccess;
-
-	if (ShouldUpdate())
-	{
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState( "Send Convoy" );
-
-		NewCityState = GlobalResistance_GameState_CityStrategyAsset(
-      NewGameState.CreateStateObject(
-        class'GlobalResistance_GameState_CityStrategyAsset', ObjectID
-      )
-    );
-		NewGameState.AddStateObject( NewCityState );
-
-		bSuccess = NewCityState.Update(NewGameState);
-		`assert( bSuccess ); // why did Update & ShouldUpdate return different bools?
-
-		`XCOMGAME.GameRuleset.SubmitGameState( NewGameState );
-	}
-}
-
-
-function bool ShouldUpdate( )
-{
-  if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(NextDispatch, GetCurrentTime()))
-  {
-    return true;
-  }
-  return false;
-}
 
 function Array<GlobalResistance_GameState_CityStrategyAsset> GetOtherCities (
   XComGameState GameState

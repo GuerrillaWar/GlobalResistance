@@ -7,6 +7,18 @@ enum StrategyAssetCategory
   eStrategyAssetCategory_Mobile,
 };
 
+enum StrategyAssetProductionState
+{
+  eStrategyAssetProductionState_AwaitingInput,
+  eStrategyAssetProductionState_Building,
+};
+
+enum StrategyAssetUpkeepState
+{
+  eStrategyAssetUpkeepState_AwaitingCost,
+  eStrategyAssetUpkeepState_Cycling,
+};
+
 
 struct StrategyAssetSpeed
 {
@@ -21,13 +33,62 @@ struct StrategyAssetSpeed
 };
 
 
+struct StrategyAssetProduction
+{
+  var array<ArtifactCost> Inputs;
+  var array<ArtifactCost> Outputs;
+  var int ProductionTime; // hours
+  var TDateTime NextTick;
+  var StrategyAssetProductionState Currently;
+  var name ProductionID;
+
+  structdefaultproperties
+  {
+    Currently = eStrategyAssetProductionState_AwaitingInput
+  }
+};
+
+
+struct StrategyAssetUpkeep
+{
+  var array<ArtifactCost> Cost;
+  var array<name> Penalties;
+  var int UpkeepFrequency; // hours
+  var TDateTime NextTick;
+  var name UpkeepID;
+  var StrategyAssetUpkeepState Currently;
+
+  structdefaultproperties
+  {
+    Currently = eStrategyAssetUpkeepState_AwaitingCost
+  }
+};
+
+struct StrategyAssetUpkeepPenalty
+{
+  var name SourceUpkeepID;
+  var name Penalty; // reference a UpkeepPenaltyTemplate.
+  var TDateTime PenaltyStartTime;
+};
+
+
+struct StrategyAssetStructure
+{
+  var name Type;
+  var int BuildHoursRemaining;
+  var array<StrategyAssetProduction> Production;
+  var array<StrategyAssetUpkeep> Upkeep;
+  var array<StrategyAssetUpkeepPenalty> UpkeepPenalties;
+};
+
+
 struct StrategyAssetUpkeepDefinition
 {
   var array<ArtifactCost> Cost;
   var array<name> Penalties;
   var int UpkeepFrequency;
   var name UpkeepID;
-}
+};
 
 
 struct StrategyAssetProductionDefinition
@@ -47,7 +108,7 @@ struct StrategyAssetStructureDefinition
   // BUILD PARAMS
   var int BuildHours;
   var array<ArtifactCost> BuildCost;
-  var StrategyRequirement BuildRequirements;
+  /* var StrategyRequirement BuildRequirements; */
 
   // ONGOING PARAMS
   var array<StrategyAssetProductionDefinition> Production;
@@ -83,8 +144,8 @@ var array<name> PlotTypes;
 
 delegate int CalculateInventoryCapacityDelegate(GlobalResistance_GameState_StrategyAsset Asset);
 delegate int CalculateUnitCapacityDelegate(GlobalResistance_GameState_StrategyAsset Asset);
-delegate array<StrategyAssetUpkeep> CalculateUpkeep(GlobalResistance_GameState_StrategyAsset Asset);
-delegate array<StrategyAssetProduction> CalculateProduction(GlobalResistance_GameState_StrategyAsset Asset);
+delegate GlobalResistance_GameState_StrategyAsset CalculateUpkeepDelegate(GlobalResistance_GameState_StrategyAsset Asset);
+delegate GlobalResistance_GameState_StrategyAsset CalculateProductionDelegate(GlobalResistance_GameState_StrategyAsset Asset);
 
 
 

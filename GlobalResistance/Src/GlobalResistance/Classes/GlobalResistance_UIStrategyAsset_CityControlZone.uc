@@ -95,8 +95,11 @@ simulated function BuildMissionPanel()
   LibraryPanel.MC.QueueString(CityAsset.GetCityDisplayName());
   LibraryPanel.MC.QueueString("img:///UILibrary_StrategyImages.X2StrategyMap.Alert_Advent_Facility");
   LibraryPanel.MC.QueueString("Relaxed Forces");
-  LibraryPanel.MC.QueueString("GARRISON");
-  LibraryPanel.MC.QueueString("ADVENT: 100-150, AYYLMAO: 20-40, MECH: 40-50");
+  LibraryPanel.MC.QueueString("Capacity");
+  LibraryPanel.MC.QueueString(
+    "Inventory:" @ CityAsset.CalculateInventoryCapacity() $
+    ", Units" @ CityAsset.CalculateUnitCapacity()
+  );
   LibraryPanel.MC.QueueString(
     "Supply Centres: " $ CityAsset.GetStructureCount('SupplyCentre') $ "\n" $
     "Gene Clinics: " $ CityAsset.GetStructureCount('GeneClinic')

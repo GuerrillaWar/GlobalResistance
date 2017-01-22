@@ -1,8 +1,10 @@
-class GlobalResistance_StrategyElement_DefaultStrategyAssets extends X2StrategyElement config(GlobalResistance);
+class GlobalResistance_StrategyElement_DefaultStrategyAssets extends X2StrategyElement config(GR_StrategyAssets);
 
 var name GeneClinicName;
 var name RecruitmentCentreName;
 var name SupplyCentreName;
+
+var const config array<StrategyAssetStructureDefinition> arrStructureDefinitions;
 
 static function array<X2DataTemplate> CreateTemplates()
 {
@@ -22,47 +24,161 @@ static function array<X2DataTemplate> CreateTemplates()
   return AssetTemplates;
 }
 
-static function AddSupplyCentreStructureDef(GlobalResistance_StrategyAssetTemplate Template)
-{
+
+static function StrategyAssetStructureDefinition GetStructureDefinition(
+  Name DefName
+) {
   local StrategyAssetStructureDefinition StructureDef;
-  local StrategyAssetProductionDefinition ProductionDef;
-  local ArtifactCost Resources;
-
-  StructureDef.ID = default.SupplyCentreName;
-
-  Resources.ItemTemplateName = 'Supplies';
-  Resources.Quantity = 400;
-  StructureDef.BuildCost.AddItem(Resources);
-
-  StructureDef.BuildHours = 24 * 7;
   
-  ProductionDef.ItemTemplateName = 'Supplies';
-  ProductionDef.CycleQuantity = 100;
-  StructureDef.Production.AddItem(ProductionDef);
-
-  Template.AllowedStructures.AddItem(StructureDef);
+  `log("Structures to Search:" @ default.arrStructureDefinitions.length);
+  foreach default.arrStructureDefinitions(StructureDef)
+  {
+    `log("StructureSearch" @ DefName @ "-" @ StructureDef.ID);
+    if (StructureDef.ID == DefName) {
+      return StructureDef;
+    }
+  }
 }
 
-static function AddGeneClinicStructureDef(GlobalResistance_StrategyAssetTemplate Template)
+
+static function int TypicalAsset_CalculateInventoryCapacity(
+  GlobalResistance_GameState_StrategyAsset Asset
+)
 {
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetStructure Structure;
+  local StrategyAssetStructureDefinition StructureDef;
+  local int Capacity;
+
+  Template = Asset.GetMyTemplate();
+  Capacity = 0;
+  Capacity += Template.InventoryCapacity;
+
+  foreach Asset.Structures(Structure)
+  {
+    StructureDef = GetStructureDefinition(Structure.Type);
+    Capacity += StructureDef.InventoryCapacity;
+  }
+
+  return Capacity;
+}
+
+
+static function int TypicalAsset_CalculateUnitCapacity(
+  GlobalResistance_GameState_StrategyAsset Asset
+)
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetStructure Structure;
+  local StrategyAssetStructureDefinition StructureDef;
+  local int Capacity;
+
+  Template = Asset.GetMyTemplate();
+  Capacity = 0;
+  Capacity += Template.UnitCapacity;
+
+  foreach Asset.Structures(Structure)
+  {
+    StructureDef = GetStructureDefinition(Structure.Type);
+    Capacity += StructureDef.UnitCapacity;
+  }
+
+  return Capacity;
+}
+
+
+static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateProduction(
+  GlobalResistance_GameState_StrategyAsset Asset
+)
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetStructure Structure;
+  local StrategyAssetProduction Production, BlankProduction;
   local StrategyAssetStructureDefinition StructureDef;
   local StrategyAssetProductionDefinition ProductionDef;
-  local ArtifactCost Resources;
+  local int Capacity, ProdIx, StructureIx;
+  local bool bFound;
+  local TDateTime CurrentTime;
 
-  StructureDef.ID = default.GeneClinicName;
+  Template = Asset.GetMyTemplate();
+  Capacity = 0;
+  Capacity += Template.UnitCapacity;
 
-  Resources.ItemTemplateName = 'Supplies';
-  Resources.Quantity = 400;
-  StructureDef.BuildCost.AddItem(Resources);
 
-  StructureDef.BuildHours = 24 * 7;
-  
-  ProductionDef.ItemTemplateName = 'Supplies';
-  ProductionDef.CycleQuantity = 10;
-  StructureDef.Production.AddItem(ProductionDef);
+  foreach Template.Production(ProductionDef)
+  {
+    bFound = false;
+    foreach Asset.Production(Production, ProdIx)
+    {
+      if (Production.ProductionID == ProductionDef.ProductionID)
+      {
+        bFound = true;
+        Production.Inputs = ProductionDef.Inputs;
+        Production.Outputs = ProductionDef.Outputs;
+        Production.ProductionTime = ProductionDef.ProductionTime;
+        Asset.Production[ProdIx] = Production;
+      }
+    }
 
-  Template.AllowedStructures.AddItem(StructureDef);
+    if (!bFound) {
+      `log("Adding Production Type:" @ ProductionDef.ProductionID);
+      Production = BlankProduction;
+      Production.Inputs = ProductionDef.Inputs;
+      Production.Outputs = ProductionDef.Outputs;
+      Production.ProductionTime = ProductionDef.ProductionTime;
+      Production.ProductionID = ProductionDef.ProductionID;
+      Production.NextTick = Asset.GetCurrentTime();
+      Asset.Production.AddItem(Production);
+    }
+  }
+
+  foreach Asset.Structures(Structure, StructureIx)
+  {
+    StructureDef = GetStructureDefinition(Structure.Type);
+
+    foreach StructureDef.Production(ProductionDef)
+    {
+      bFound = false;
+      foreach Structure.Production(Production, ProdIx)
+      {
+        if (Production.ProductionID == ProductionDef.ProductionID)
+        {
+          bFound = true;
+          Production.Inputs = ProductionDef.Inputs;
+          Production.Outputs = ProductionDef.Outputs;
+          Production.ProductionTime = ProductionDef.ProductionTime;
+          Asset.Production[ProdIx] = Production;
+        }
+      }
+
+      if (!bFound) {
+        `log("Adding Production Type:" @ ProductionDef.ProductionID);
+        Production = BlankProduction;
+        Production.Inputs = ProductionDef.Inputs;
+        Production.Outputs = ProductionDef.Outputs;
+        Production.ProductionTime = ProductionDef.ProductionTime;
+        Production.ProductionID = ProductionDef.ProductionID;
+        Production.NextTick = Asset.GetCurrentTime();
+        Structure.Production.AddItem(Production);
+      }
+    }
+
+    Asset.Structures[StructureIx] = Structure;
+  }
+
+  return Asset;
 }
+
+
+static function ArtifactCost GenerateArtifactCost(Name ItemTemplateName, int Quantity)
+{
+  local ArtifactCost Cost;
+  Cost.ItemTemplateName = ItemTemplateName;
+  Cost.Quantity = Quantity;
+  return Cost;
+}
+
+
 
 static function X2DataTemplate CreateCityControlZone()
 {
@@ -80,8 +196,12 @@ static function X2DataTemplate CreateCityControlZone()
   Template.PlotTypes.AddItem('CityCenter');
   Template.PlotTypes.AddItem('SmallTown');
 
-  AddSupplyCentreStructureDef(Template);
-  AddGeneClinicStructureDef(Template);
+  Template.AllowedStructures.AddItem(GetStructureDefinition('GeneClinic'));
+  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
 
   return Template;
 }
@@ -101,7 +221,12 @@ static function X2DataTemplate CreateSlumCity()
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
   Template.PlotTypes.AddItem('Slums');
 
-  AddSupplyCentreStructureDef(Template);
+  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
+  Template.AllowedStructures.AddItem(GetStructureDefinition('Farm'));
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
 
   return Template;
 }
@@ -121,6 +246,10 @@ static function X2DataTemplate CreateGuardPost()
   Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_GuardPost';
   Template.PlotTypes.AddItem('Wilderness');
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
 
   return Template;
 }
@@ -142,6 +271,10 @@ static function X2DataTemplate CreateAvatarFacility()
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
   Template.PlotTypes.AddItem('Wilderness');
 
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+
   return Template;
 }
 
@@ -161,6 +294,10 @@ static function X2DataTemplate CreateAdventBlacksite()
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AdventBlacksite';
   Template.PlotTypes.AddItem('Wilderness');
 
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+
   return Template;
 }
 
@@ -179,6 +316,10 @@ static function X2DataTemplate CreateResistanceCamp()
   Template.GameStateClass = class'GlobalResistance_GameState_ResistanceCamp';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
   Template.PlotTypes.AddItem('Shanty');
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
 
   return Template;
 }
@@ -205,6 +346,10 @@ static function X2DataTemplate CreateAdventConvoy()
 
   Template.Speeds.AddItem(Speed);
 
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+
   return Template;
 }
 
@@ -212,6 +357,9 @@ static function X2DataTemplate CreateAdventConvoy()
 defaultproperties
 {
   GeneClinicName="GeneClinic"
+  HospitalName="Hospital"
+  FarmName="Farm"
+  MunitionsFactoryName="MunitionsFactory"
   RecruitmentCentreName="RecruitmentCentre"
   SupplyCentreName="SupplyCentre"
 }

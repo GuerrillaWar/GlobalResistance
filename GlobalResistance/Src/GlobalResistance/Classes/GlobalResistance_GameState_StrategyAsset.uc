@@ -13,41 +13,6 @@ struct AssetSearchNode
 
 
 
-/* struct StrategyAssetStructure */
-/* { */
-/*   var name Type; */
-/*   var int BuildHoursRemaining; */
-/*   var int NextUpkeepTick; */
-/*   var array<int> NextProductionTick; */
-/* }; */
-
-struct StrategyAssetUpkeep
-{
-  var array<ArtifactCost> Cost;
-  var array<name> Penalties;
-  var int UpkeepFrequency; // hours
-  var TDateTime NextTick;
-  var name UpkeepID;
-};
-
-struct StrategyAssetUpkeepPenalty
-{
-  var name SourceUpkeepID;
-  var name Penalty; // reference a UpkeepPenaltyTemplate.
-  var TDateTime PenaltyStartTime;
-};
-
-struct StrategyAssetProduction
-{
-  var array<ArtifactCost> Inputs;
-  var array<ArtifactCost> Outputs;
-  var int ProductionTime; // hours
-  var TDateTime NextCompletion;
-  var name ProductionID;
-};
-
-
-
 
 
 
@@ -72,6 +37,10 @@ struct StrategyAssetWaypoint
   var StateObjectReference DestinationRef;
 };
 
+var() TDateTime NextEconomyTick;
+var() array<StrategyAssetProduction> Production;
+var() array<StrategyAssetUpkeep> Upkeep;
+var() array<StrategyAssetUpkeepPenalty> UpkeepPenalties;
 var() array<StrategyAssetStructure> Structures;
 var() array<StrategyAssetSquad> Squads;
 var() array<StateObjectReference> Inventory;
@@ -121,15 +90,284 @@ function AddStructureOfType(name StructureType)
 
   Structure.Type = StructureType;
   Structure.BuildHoursRemaining = 0;
-  Structure.NextUpkeepTick = StructureDef.UpkeepHours;
-  foreach StructureDef.BaseProductionCapability(ProductionDef)
-  {
-    Structure.NextProductionTick.AddItem(ProductionDef.CycleHours);
-  }
-
   Structures.AddItem(Structure);
+  CalculateProduction();
+  UpdateNextEconomyTick();
 }
 
+
+//---------------------------------------------------------------------------------------
+//
+// INVENTORY MANAGEMENT
+//
+//---------------------------------------------------------------------------------------
+function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Item ItemState)
+{
+	local bool AssetModified;
+	local XComGameState_Item InventoryItemState, NewInventoryItemState;
+	local X2ItemTemplate ItemTemplate;
+
+	ItemTemplate = ItemState.GetMyTemplate();
+
+  if(!ItemState.GetMyTemplate().bInfiniteItem)
+  {
+    InventoryItemState = GetItemByName(ItemState.GetMyTemplateName());
+
+    if( InventoryItemState != none)
+    {
+      AssetModified = false;
+      
+      if(InventoryItemState.ObjectID != ItemState.ObjectID)
+      {
+        NewInventoryItemState = XComGameState_Item(AddToGameState.CreateStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
+        NewInventoryItemState.Quantity += ItemState.Quantity;
+        AddToGameState.AddStateObject(NewInventoryItemState);
+        AddToGameState.RemoveStateObject(ItemState.ObjectID);
+      }
+    }
+    else
+    {
+      AssetModified = true;
+      Inventory.AddItem(ItemState.GetReference());
+    }
+  }
+
+	return AssetModified;
+}
+function XComGameState_Item GetItemByName(name ItemTemplateName)
+{
+	local XComGameStateHistory History;
+	local XComGameState_Item InventoryItemState;
+	local int i;
+
+	History = `XCOMHISTORY;
+
+	for( i = 0; i < Inventory.Length; i++ )
+	{
+		InventoryItemState = XComGameState_Item(History.GetGameStateForObjectID(Inventory[i].ObjectId));
+
+		if( InventoryItemState != none && InventoryItemState.GetMyTemplateName() == ItemTemplateName )
+		{
+			return InventoryItemState;
+		}
+	}
+
+	return none;
+}
+
+function int GetNumItemInInventory(name ItemTemplateName)
+{
+	local XComGameState_Item ItemState;
+
+	ItemState = GetItemByName(ItemTemplateName);
+	if (ItemState != none)
+	{
+		return ItemState.Quantity;
+	}
+
+	return 0;
+}
+
+// End Inventory
+
+
+
+function UpdateNextEconomyTick() {
+  local StrategyAssetStructure StructureInstance;
+  local StrategyAssetProduction ProductionInstance;
+  local StrategyAssetUpkeep UpkeepInstance;
+  local TDateTime LowestDateTime;
+  LowestDateTime = GetCurrentTime();
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+  class'X2StrategyGameRulesetDataStructures'.static.AddMonth(LowestDateTime);
+
+  foreach Production(ProductionInstance)
+  {
+    if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+      ProductionInstance.NextTick, LowestDateTime
+    ))
+    {
+      LowestDateTime = ProductionInstance.NextTick;
+    }
+  }
+
+  foreach Upkeep(UpkeepInstance)
+  {
+    if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+      UpkeepInstance.NextTick, LowestDateTime
+    ))
+    {
+      LowestDateTime = UpkeepInstance.NextTick;
+    }
+  }
+
+  foreach Structures(StructureInstance)
+  {
+    foreach StructureInstance.Production(ProductionInstance)
+    {
+      if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+        ProductionInstance.NextTick, LowestDateTime
+      ))
+      {
+        LowestDateTime = ProductionInstance.NextTick;
+      }
+    }
+
+    foreach StructureInstance.Upkeep(UpkeepInstance)
+    {
+      if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+        UpkeepInstance.NextTick, LowestDateTime
+      ))
+      {
+        LowestDateTime = UpkeepInstance.NextTick;
+      }
+    }
+  }
+
+  NextEconomyTick = LowestDateTime;
+  `log(
+    "Next Economy Tick Set To" @
+    class'X2StrategyGameRulesetDataStructures'.static.GetDateString(NextEconomyTick) @
+    class'X2StrategyGameRulesetDataStructures'.static.GetTimeString(NextEconomyTick)
+  );
+}
+
+function StrategyAssetProduction AdvanceProduction(
+  XComGameState GameState, StrategyAssetProduction ProdInstance
+)
+{
+  local TDateTime NextTick;
+  local ArtifactCost Output;
+  local X2ItemTemplate ItemTemplate;
+  local XComGameState_Item ItemState;
+	local X2ItemTemplateManager ItemTemplateManager;
+
+  if (ProdInstance.Currently == eStrategyAssetProductionState_AwaitingInput)
+  {
+    // consume resources for input (if possible)
+    ProdInstance.Currently = eStrategyAssetProductionState_Building;
+    NextTick = GetCurrentTime();
+    class'X2StrategyGameRulesetDataStructures'.static.AddHours(
+      NextTick, ProdInstance.ProductionTime
+    );
+    ProdInstance.NextTick = NextTick;
+  } else {
+    ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+
+    foreach ProdInstance.Outputs(Output)
+    {
+      ItemTemplate = ItemTemplateManager.FindItemTemplate(Output.ItemTemplateName);
+      ItemState = ItemTemplate.CreateInstanceFromTemplate(GameState);
+      ItemState.Quantity = Output.Quantity;
+      GameState.AddStateObject(ItemState);
+      PutItemInInventory(GameState, ItemState);
+      `log("Added to Inventory:" @ Output.ItemTemplateName);
+      `log("Already in Storage:" @ GetNumItemInInventory(Output.ItemTemplateName));
+      `log("Added:" @ Output.Quantity);
+    }
+
+    ProdInstance.Currently = eStrategyAssetProductionState_AwaitingInput;
+    ProdInstance.NextTick = GetCurrentTime();
+  }
+
+  `log("Advancing Production " @ ProdInstance.ProductionID @ ProdInstance.Currently);
+
+  return ProdInstance;
+}
+
+
+function AdvanceEconomy(XComGameState GameState) {
+  local StrategyAssetStructure StructureInstance;
+  local StrategyAssetProduction ProductionInstance;
+  local StrategyAssetUpkeep UpkeepInstance;
+  local TDateTime Now;
+  local int ProductionIx, StructureIx, UpkeepIx;
+
+  Now = GetCurrentTime();
+
+  foreach Production(ProductionInstance, ProductionIx)
+  {
+    if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+      ProductionInstance.NextTick, Now
+    ))
+    {
+      Production[ProductionIx] = AdvanceProduction(GameState, ProductionInstance);
+    }
+  }
+
+  foreach Upkeep(UpkeepInstance, UpkeepIx)
+  {
+    if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+      UpkeepInstance.NextTick, Now
+    ))
+    {
+      /* LowestDateTime = UpkeepInstance.NextTick; */
+    }
+  }
+
+  foreach Structures(StructureInstance, StructureIx)
+  {
+    foreach StructureInstance.Production(ProductionInstance, ProductionIx)
+    {
+      if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+        ProductionInstance.NextTick, Now
+      ))
+      {
+        StructureInstance.Production[ProductionIx] = AdvanceProduction(
+          GameState, ProductionInstance
+        );
+      }
+    }
+
+    foreach StructureInstance.Upkeep(UpkeepInstance, UpkeepIx)
+    {
+      if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(
+        UpkeepInstance.NextTick, Now
+      ))
+      {
+        /* LowestDateTime = UpkeepInstance.NextTick; */
+      }
+    }
+
+    Structures[StructureIx] = StructureInstance;
+  }
+
+  // maybe calc production too
+  UpdateNextEconomyTick();
+}
+
+
+function GlobalResistance_GameState_StrategyAsset CalculateProduction()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  Template = GetMyTemplate();
+  return Template.CalculateProductionDelegate(self);
+}
+
+
+function int CalculateInventoryCapacity()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  Template = GetMyTemplate();
+  return Template.CalculateInventoryCapacityDelegate(self);
+}
+
+function int CalculateUnitCapacity()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  Template = GetMyTemplate();
+  return Template.CalculateUnitCapacityDelegate(self);
+}
 
 function AddSquad(StrategyAssetSquad Squad)
 {
@@ -555,8 +793,35 @@ function bool RequiresSquad()
 
 
 function UpdateGameBoard()
-{
+{	
+	local XComGameStateHistory History;
+	local XComGameState NewGameState;
+  local GlobalResistance_GameState_StrategyAsset NewAsset;
+
+  if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(NextEconomyTick, GetCurrentTime()))
+  {
+    `log("EconomyTick RUNS");
+    History = `XCOMHISTORY;
+    NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("EconomyTickStrategyAsset");
+    NewAsset = GlobalResistance_GameState_StrategyAsset(
+      NewGameState.CreateStateObject(
+        class'GlobalResistance_GameState_StrategyAsset', 
+        ObjectID
+      )
+    );
+    NewAsset.AdvanceEconomy(NewGameState);
+    NewGameState.AddStateObject(NewAsset);
+    `XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
+  }
+
+	/* if (NewGameState.GetNumGameStateObjects() > 0) */
+	/* { */
+	/* 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState); */
+	/* } */
 }
+
+
+
 
 simulated function name GetMyTemplateName()
 {
