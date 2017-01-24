@@ -134,6 +134,62 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 
 	return AssetModified;
 }
+
+function bool ConsumeArtifactCost(XComGameState GameState, ArtifactCost Cost)
+{
+	local XComGameState_Item InventoryItemState, NewInventoryItemState;
+	local X2ItemTemplate ItemTemplate;
+  InventoryItemState = GetItemByName(Cost.ItemTemplateName);
+
+  if( InventoryItemState != none)
+  {
+    NewInventoryItemState = XComGameState_Item(GameState.CreateStateObject(class'XComGameState_Item', InventoryItemState.ObjectID));
+    NewInventoryItemState.Quantity -= Cost.Quantity;
+    GameState.AddStateObject(NewInventoryItemState);
+    return true;
+  }
+  return false;
+}
+
+function bool ConsumeAllArtifactCosts(XComGameState GameState, Array<ArtifactCost> Costs)
+{
+  local bool Successful;
+  local int ix;
+
+  for(ix = 0; ix < Costs.Length; ix++)
+  {
+    Successful = ConsumeArtifactCost(Costs[ix]);
+
+    if(!Successful)
+      break;
+  }
+
+  return Successful;
+}
+
+function bool CanAffordAllArtifactCosts(Array<ArtifactCost> Costs)
+{
+  local bool CanAfford;
+  local int ix;
+
+  CanAfford = true;
+
+  for(ix = 0; ix < Costs.Length; ix++)
+  {
+    CanAfford = CanAffordArtifactCost(Costs[ix]);
+
+    if(!CanAfford)
+      break;
+  }
+
+  return CanAfford;
+}
+
+function bool CanAffordArtifactCost(ArtifactCost Cost)
+{
+  return GetNumItemInInventory(Cost.ItemTemplateName) >= Cost.Quantity;
+}
+
 function XComGameState_Item GetItemByName(name ItemTemplateName)
 {
 	local XComGameStateHistory History;
@@ -254,12 +310,22 @@ function StrategyAssetProduction AdvanceProduction(
 
   if (ProdInstance.Currently == eStrategyAssetProductionState_AwaitingInput)
   {
-    // consume resources for input (if possible)
-    ProdInstance.Currently = eStrategyAssetProductionState_Building;
     NextTick = GetCurrentTime();
-    class'X2StrategyGameRulesetDataStructures'.static.AddHours(
-      NextTick, ProdInstance.ProductionTime
-    );
+    // consume resources for input (if possible)
+    if (CanAffordAllArtifactCosts(ProdInstance.Inputs))
+    {
+      ConsumeAllArtifactCosts(GameState, ProdInstance.Inputs);
+      ProdInstance.Currently = eStrategyAssetProductionState_Building;
+      class'X2StrategyGameRulesetDataStructures'.static.AddHours(
+        NextTick, ProdInstance.ProductionTime
+      );
+    }
+    else
+    {
+      // defer next tick for a day, will attempt production again then
+      class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextTick, 24);
+    }
+
     ProdInstance.NextTick = NextTick;
   } else {
     ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
@@ -283,6 +349,50 @@ function StrategyAssetProduction AdvanceProduction(
   `log("Advancing Production " @ ProdInstance.ProductionID @ ProdInstance.Currently);
 
   return ProdInstance;
+}
+
+
+function StrategyAssetUpkeep AdvanceUpkeep(
+  XComGameState GameState, StrategyAssetUpkeep UpkeepInstance
+)
+{
+  local TDateTime NextTick;
+  local ArtifactCost Output;
+  local X2ItemTemplate ItemTemplate;
+  local XComGameState_Item ItemState;
+	local X2ItemTemplateManager ItemTemplateManager;
+
+  if (
+    UpkeepInstance.Currently == eStrategyAssetUpkeepState_AwaitingCost ||
+    UpkeepInstance.Currently == eStrategyAssetUpkeepState_InPenalty
+  )
+  {
+    NextTick = GetCurrentTime();
+    // consume resources for input (if possible)
+    if (CanAffordAllArtifactCosts(UpkeepInstance.Cost))
+    {
+      ConsumeAllArtifactCosts(GameState, UpkeepInstance.Cost);
+      UpkeepInstance.Currently = eStrategyAssetUpkeepState_Cycling;
+      class'X2StrategyGameRulesetDataStructures'.static.AddHours(
+        NextTick, UpkeepInstance.UpkeepFrequency
+      );
+    }
+    else
+    {
+      // defer next tick for a day, will attempt upkeep again then
+      UpkeepInstance.Currently = eStrategyAssetUpkeepState_InPenalty;
+      class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextTick, 24);
+    }
+
+    UpkeepInstance.NextTick = NextTick;
+  } else {
+    UpkeepInstance.Currently = eStrategyAssetUpkeepState_AwaitingCost;
+    UpkeepInstance.NextTick = GetCurrentTime();
+  }
+
+  `log("Advancing Upkeep " @ UpkeepInstance.UpkeepID @ UpkeepInstance.Currently);
+
+  return UpkeepInstance;
 }
 
 
@@ -311,7 +421,7 @@ function AdvanceEconomy(XComGameState GameState) {
       UpkeepInstance.NextTick, Now
     ))
     {
-      /* LowestDateTime = UpkeepInstance.NextTick; */
+      Upkeep[UpkeepIx] = AdvanceUpkeep(GameState, UpkeepInstance);
     }
   }
 
@@ -335,7 +445,9 @@ function AdvanceEconomy(XComGameState GameState) {
         UpkeepInstance.NextTick, Now
       ))
       {
-        /* LowestDateTime = UpkeepInstance.NextTick; */
+        StructureInstance.Upkeep[UpkeepIx] = AdvanceUpkeep(
+          GameState, UpkeepInstance
+        );
       }
     }
 

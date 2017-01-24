@@ -16,6 +16,7 @@ enum StrategyAssetProductionState
 enum StrategyAssetUpkeepState
 {
   eStrategyAssetUpkeepState_AwaitingCost,
+  eStrategyAssetUpkeepState_InPenalty,
   eStrategyAssetUpkeepState_Cycling,
 };
 
