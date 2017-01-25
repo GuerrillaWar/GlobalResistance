@@ -1,5 +1,6 @@
 class GlobalResistance_StrategyAssetTemplate extends X2StrategyElementTemplate;
 
+
 enum StrategyAssetCategory
 {
   eStrategyAssetCategory_Static,
@@ -7,11 +8,13 @@ enum StrategyAssetCategory
   eStrategyAssetCategory_Mobile,
 };
 
+
 enum StrategyAssetProductionState
 {
   eStrategyAssetProductionState_AwaitingInput,
   eStrategyAssetProductionState_Building,
 };
+
 
 enum StrategyAssetUpkeepState
 {
@@ -65,6 +68,7 @@ struct StrategyAssetUpkeep
   }
 };
 
+
 struct StrategyAssetUpkeepPenalty
 {
   var name SourceUpkeepID;
@@ -101,7 +105,6 @@ struct StrategyAssetProductionDefinition
 };
 
 
-
 struct StrategyAssetStructureDefinition
 {
   var name ID;
@@ -125,6 +128,15 @@ struct StrategyAssetStructureDefinition
 };
 
 
+struct StrategyAssetTemplateDefinition
+{
+  var name ID;
+  var array<StrategyAssetProductionDefinition> Production;
+  var array<StrategyAssetUpkeepDefinition> Upkeep;
+  var int UnitCapacity;
+  var int InventoryCapacity;
+};
+
 
 var StrategyAssetCategory AssetCategory;
 var eTeam DefaultTeam;
@@ -147,10 +159,6 @@ delegate int CalculateInventoryCapacityDelegate(GlobalResistance_GameState_Strat
 delegate int CalculateUnitCapacityDelegate(GlobalResistance_GameState_StrategyAsset Asset);
 delegate GlobalResistance_GameState_StrategyAsset CalculateUpkeepDelegate(GlobalResistance_GameState_StrategyAsset Asset);
 delegate GlobalResistance_GameState_StrategyAsset CalculateProductionDelegate(GlobalResistance_GameState_StrategyAsset Asset);
-
-
-
-
 
 
 function StrategyAssetStructureDefinition GetStructureDefinition(name StructureType)

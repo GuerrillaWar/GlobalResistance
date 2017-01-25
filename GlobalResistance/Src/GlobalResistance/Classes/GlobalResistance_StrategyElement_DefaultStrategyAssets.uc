@@ -4,6 +4,7 @@ var name GeneClinicName;
 var name RecruitmentCentreName;
 var name SupplyCentreName;
 
+var const config array<StrategyAssetTemplateDefinition> arrTemplateDefinitions;
 var const config array<StrategyAssetStructureDefinition> arrStructureDefinitions;
 
 static function array<X2DataTemplate> CreateTemplates()
@@ -41,6 +42,220 @@ static function StrategyAssetStructureDefinition GetStructureDefinition(
 }
 
 
+static function ApplyTemplateDefinition(
+  Name DefName,
+  GlobalResistance_StrategyAssetTemplate Template
+) {
+  local StrategyAssetTemplateDefinition TemplateDef;
+  
+  foreach default.arrTemplateDefinitions(TemplateDef)
+  {
+    if (TemplateDef.ID == DefName)
+    {
+      Template.Production = TemplateDef.Production;
+      Template.Upkeep = TemplateDef.Upkeep;
+      Template.UnitCapacity = TemplateDef.UnitCapacity;
+      Template.InventoryCapacity = TemplateDef.InventoryCapacity;
+    }
+  }
+}
+
+
+static function ArtifactCost GenerateArtifactCost(Name ItemTemplateName, int Quantity)
+{
+  local ArtifactCost Cost;
+  Cost.ItemTemplateName = ItemTemplateName;
+  Cost.Quantity = Quantity;
+  return Cost;
+}
+
+
+static function X2DataTemplate CreateCityControlZone()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_CityControlZone');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+
+  ApplyTemplateDefinition('CityControlZone', Template);
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
+  Template.PlotTypes.AddItem('CityCenter');
+  Template.PlotTypes.AddItem('SmallTown');
+
+  Template.AllowedStructures.AddItem(GetStructureDefinition('GeneClinic'));
+  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateSlumCity()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_SlumCity');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+
+  ApplyTemplateDefinition('SlumCity', Template);
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
+  Template.PlotTypes.AddItem('Slums');
+
+  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
+  Template.AllowedStructures.AddItem(GetStructureDefinition('Farm'));
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateGuardPost()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_GuardPost');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.InventoryCapacity = 200;
+  Template.UnitCapacity = 15;
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_GuardPost';
+  Template.PlotTypes.AddItem('Wilderness');
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAvatarFacility()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AvatarFacility');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 40;
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_AvatarFacilityStrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
+  Template.PlotTypes.AddItem('Wilderness');
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAdventBlacksite()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventBlacksite');
+
+  Template.AssetCategory = eStrategyAssetCategory_Static;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 40;
+  Template.HasCoreStructure = true;
+  Template.CoreStructure = GetStructureDefinition('Blacksite');
+  Template.AllowedStructures.AddItem(GetStructureDefinition('Blacksite'));
+
+  Template.GameStateClass = class'GlobalResistance_GameState_AdventBlacksiteStrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AdventBlacksite';
+  Template.PlotTypes.AddItem('Wilderness');
+
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateResistanceCamp()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_ResistanceCamp');
+
+  Template.AssetCategory = eStrategyAssetCategory_Buildable;
+  Template.DefaultTeam = eTeam_XCom;
+  Template.InventoryCapacity = 1000;
+  Template.UnitCapacity = 100;
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_ResistanceCamp';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
+  Template.PlotTypes.AddItem('Shanty');
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+static function X2DataTemplate CreateAdventConvoy()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetSpeed Speed, BlankSpeed;
+
+  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventConvoy');
+
+  Template.AssetCategory = eStrategyAssetCategory_Mobile;
+  Template.DefaultTeam = eTeam_Alien;
+  Template.InventoryCapacity = 200;
+  Template.UnitCapacity = 15;
+  Template.HasCoreStructure = false;
+  Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
+  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
+
+  Speed = BlankSpeed;
+  Speed.ID = 'Standard';
+  Speed.Velocity = 0.1;
+
+  Template.Speeds.AddItem(Speed);
+
+  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
+  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
+  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  Template.CalculateUpkeepDelegate = TypicalAsset_CalculateUpkeep;
+
+  return Template;
+}
+
+
+// DELEGATE
 static function int TypicalAsset_CalculateInventoryCapacity(
   GlobalResistance_GameState_StrategyAsset Asset
 )
@@ -96,14 +311,11 @@ static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateP
   local StrategyAssetProduction Production, BlankProduction;
   local StrategyAssetStructureDefinition StructureDef;
   local StrategyAssetProductionDefinition ProductionDef;
-  local int Capacity, ProdIx, StructureIx;
+  local int ProdIx, StructureIx;
   local bool bFound;
   local TDateTime CurrentTime;
 
   Template = Asset.GetMyTemplate();
-  Capacity = 0;
-  Capacity += Template.UnitCapacity;
-
 
   foreach Template.Production(ProductionDef)
   {
@@ -170,188 +382,86 @@ static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateP
 }
 
 
-static function ArtifactCost GenerateArtifactCost(Name ItemTemplateName, int Quantity)
-{
-  local ArtifactCost Cost;
-  Cost.ItemTemplateName = ItemTemplateName;
-  Cost.Quantity = Quantity;
-  return Cost;
-}
-
-
-
-static function X2DataTemplate CreateCityControlZone()
+static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateUpkeep(
+  GlobalResistance_GameState_StrategyAsset Asset
+)
 {
   local GlobalResistance_StrategyAssetTemplate Template;
+  local StrategyAssetStructure Structure;
+  local StrategyAssetUpkeep Upkeep, BlankUpkeep;
+  local StrategyAssetStructureDefinition StructureDef;
+  local StrategyAssetUpkeepDefinition UpkeepDef;
+  local int UpkeepIx, StructureIx;
+  local bool bFound;
+  local TDateTime CurrentTime;
 
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_CityControlZone');
+  Template = Asset.GetMyTemplate();
 
-  Template.AssetCategory = eStrategyAssetCategory_Static;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 2000;
-  Template.UnitCapacity = 1000;
-  Template.HasCoreStructure = false;
-  Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
-  Template.PlotTypes.AddItem('CityCenter');
-  Template.PlotTypes.AddItem('SmallTown');
+  foreach Template.Upkeep(UpkeepDef)
+  {
+    bFound = false;
+    foreach Asset.Upkeep(Upkeep, UpkeepIx)
+    {
+      if (Upkeep.UpkeepID == UpkeepDef.UpkeepID)
+      {
+        bFound = true;
+        Upkeep.Cost = UpkeepDef.Cost;
+        Upkeep.Penalties = UpkeepDef.Penalties;
+        Upkeep.UpkeepFrequency = UpkeepDef.UpkeepFrequency;
+        Asset.Upkeep[UpkeepIx] = Upkeep;
+      }
+    }
 
-  Template.AllowedStructures.AddItem(GetStructureDefinition('GeneClinic'));
-  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
+    if (!bFound) {
+      `log("Adding Upkeep Type:" @ UpkeepDef.UpkeepID);
+      Upkeep = BlankUpkeep;
+      Upkeep.Cost = UpkeepDef.Cost;
+      Upkeep.UpkeepFrequency = UpkeepDef.UpkeepFrequency;
+      Upkeep.Penalties = UpkeepDef.Penalties;
+      Upkeep.UpkeepID = UpkeepDef.UpkeepID;
+      Upkeep.NextTick = Asset.GetCurrentTime();
+      Asset.Upkeep.AddItem(Upkeep);
+    }
+  }
 
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
+  foreach Asset.Structures(Structure, StructureIx)
+  {
+    StructureDef = GetStructureDefinition(Structure.Type);
 
-  return Template;
-}
+    foreach StructureDef.Upkeep(UpkeepDef)
+    {
+      bFound = false;
+      foreach Structure.Upkeep(Upkeep, UpkeepIx)
+      {
+        if (Upkeep.UpkeepID == UpkeepDef.UpkeepID)
+        {
+          bFound = true;
+          Upkeep.Cost = UpkeepDef.Cost;
+          Upkeep.Penalties = UpkeepDef.Penalties;
+          Upkeep.UpkeepFrequency = UpkeepDef.UpkeepFrequency;
+          Asset.Upkeep[UpkeepIx] = Upkeep;
+        }
+      }
 
-static function X2DataTemplate CreateSlumCity()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
+      if (!bFound) {
+        `log("Adding Upkeep Type:" @ UpkeepDef.UpkeepID);
+        Upkeep = BlankUpkeep;
+        Upkeep.Cost = UpkeepDef.Cost;
+        Upkeep.UpkeepFrequency = UpkeepDef.UpkeepFrequency;
+        Upkeep.Penalties = UpkeepDef.Penalties;
+        Upkeep.UpkeepID = UpkeepDef.UpkeepID;
+        Upkeep.NextTick = Asset.GetCurrentTime();
+        Structure.Upkeep.AddItem(Upkeep);
+      }
+    }
 
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_SlumCity');
+    Asset.Structures[StructureIx] = Structure;
+  }
 
-  Template.AssetCategory = eStrategyAssetCategory_Static;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 1000;
-  Template.UnitCapacity = 400;
-  Template.HasCoreStructure = false;
-  Template.GameStateClass = class'GlobalResistance_GameState_CityStrategyAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_CityControlZone';
-  Template.PlotTypes.AddItem('Slums');
-
-  Template.AllowedStructures.AddItem(GetStructureDefinition('SupplyCentre'));
-  Template.AllowedStructures.AddItem(GetStructureDefinition('Farm'));
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
-}
-
-
-static function X2DataTemplate CreateGuardPost()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
-
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_GuardPost');
-
-  Template.AssetCategory = eStrategyAssetCategory_Static;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 200;
-  Template.UnitCapacity = 15;
-  Template.HasCoreStructure = true;
-  Template.GameStateClass = class'GlobalResistance_GameState_GuardPostAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_GuardPost';
-  Template.PlotTypes.AddItem('Wilderness');
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
-}
-
-
-
-static function X2DataTemplate CreateAvatarFacility()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
-
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AvatarFacility');
-
-  Template.AssetCategory = eStrategyAssetCategory_Static;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 1000;
-  Template.UnitCapacity = 40;
-  Template.HasCoreStructure = true;
-  Template.GameStateClass = class'GlobalResistance_GameState_AvatarFacilityStrategyAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
-  Template.PlotTypes.AddItem('Wilderness');
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
+  return Asset;
 }
 
 
-static function X2DataTemplate CreateAdventBlacksite()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
-
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventBlacksite');
-
-  Template.AssetCategory = eStrategyAssetCategory_Static;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 1000;
-  Template.UnitCapacity = 40;
-  Template.HasCoreStructure = true;
-  Template.GameStateClass = class'GlobalResistance_GameState_AdventBlacksiteStrategyAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AdventBlacksite';
-  Template.PlotTypes.AddItem('Wilderness');
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
-}
-
-
-static function X2DataTemplate CreateResistanceCamp()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
-
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_ResistanceCamp');
-
-  Template.AssetCategory = eStrategyAssetCategory_Buildable;
-  Template.DefaultTeam = eTeam_XCom;
-  Template.InventoryCapacity = 1000;
-  Template.UnitCapacity = 100;
-  Template.HasCoreStructure = false;
-  Template.GameStateClass = class'GlobalResistance_GameState_ResistanceCamp';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
-  Template.PlotTypes.AddItem('Shanty');
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
-}
-
-
-static function X2DataTemplate CreateAdventConvoy()
-{
-  local GlobalResistance_StrategyAssetTemplate Template;
-  local StrategyAssetSpeed Speed, BlankSpeed;
-
-  `CREATE_X2TEMPLATE(class'GlobalResistance_StrategyAssetTemplate', Template, 'StrategyAsset_AdventConvoy');
-
-  Template.AssetCategory = eStrategyAssetCategory_Mobile;
-  Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 200;
-  Template.UnitCapacity = 15;
-  Template.HasCoreStructure = false;
-  Template.GameStateClass = class'GlobalResistance_GameState_StrategyAsset';
-  Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_ResistanceCamp';
-
-  Speed = BlankSpeed;
-  Speed.ID = 'Standard';
-  Speed.Velocity = 0.1;
-
-  Template.Speeds.AddItem(Speed);
-
-  Template.CalculateUnitCapacityDelegate = TypicalAsset_CalculateUnitCapacity;
-  Template.CalculateInventoryCapacityDelegate = TypicalAsset_CalculateInventoryCapacity;
-  Template.CalculateProductionDelegate = TypicalAsset_CalculateProduction;
-
-  return Template;
-}
 
 
 defaultproperties

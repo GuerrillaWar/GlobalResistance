@@ -68,11 +68,14 @@ static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate
   Asset = GlobalResistance_GameState_StrategyAsset(NewGameState.CreateStateObject(Template.GameStateClass));
   Asset.m_TemplateName = TemplateName;
   Asset.m_AssetTemplate = Template;
+  if (Template.HasCoreStructure)
+  {
+    Asset.AddStructureOfType(Template.CoreStructure.ID);
+  }
   `log("Finished Creating Asset:" @ TemplateName);
 
   return Asset;
 }
-
 
 
 //---------------------------------------------------------------------------------------
@@ -82,16 +85,14 @@ function AddStructureOfType(name StructureType)
 {
   local GlobalResistance_StrategyAssetTemplate Template;
   local StrategyAssetStructure Structure;
-  local StrategyAssetStructureDefinition StructureDef;
-  local StrategyAssetProductionDefinition ProductionDef;
 
-  Template = GetMyTemplate();
-  StructureDef = Template.GetStructureDefinition(StructureType);
+  /* Template = GetMyTemplate(); */
 
   Structure.Type = StructureType;
   Structure.BuildHoursRemaining = 0;
   Structures.AddItem(Structure);
   CalculateProduction();
+  CalculateUpkeep();
   UpdateNextEconomyTick();
 }
 
@@ -105,9 +106,9 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 {
 	local bool AssetModified;
 	local XComGameState_Item InventoryItemState, NewInventoryItemState;
-	local X2ItemTemplate ItemTemplate;
+	/* local X2ItemTemplate ItemTemplate; */
 
-	ItemTemplate = ItemState.GetMyTemplate();
+	/* ItemTemplate = ItemState.GetMyTemplate(); */
 
   if(!ItemState.GetMyTemplate().bInfiniteItem)
   {
@@ -135,10 +136,10 @@ function bool PutItemInInventory(XComGameState AddToGameState, XComGameState_Ite
 	return AssetModified;
 }
 
+
 function bool ConsumeArtifactCost(XComGameState GameState, ArtifactCost Cost)
 {
 	local XComGameState_Item InventoryItemState, NewInventoryItemState;
-	local X2ItemTemplate ItemTemplate;
   InventoryItemState = GetItemByName(Cost.ItemTemplateName);
 
   if( InventoryItemState != none)
@@ -151,6 +152,7 @@ function bool ConsumeArtifactCost(XComGameState GameState, ArtifactCost Cost)
   return false;
 }
 
+
 function bool ConsumeAllArtifactCosts(XComGameState GameState, Array<ArtifactCost> Costs)
 {
   local bool Successful;
@@ -158,7 +160,7 @@ function bool ConsumeAllArtifactCosts(XComGameState GameState, Array<ArtifactCos
 
   for(ix = 0; ix < Costs.Length; ix++)
   {
-    Successful = ConsumeArtifactCost(Costs[ix]);
+    Successful = ConsumeArtifactCost(GameState, Costs[ix]);
 
     if(!Successful)
       break;
@@ -166,6 +168,7 @@ function bool ConsumeAllArtifactCosts(XComGameState GameState, Array<ArtifactCos
 
   return Successful;
 }
+
 
 function bool CanAffordAllArtifactCosts(Array<ArtifactCost> Costs)
 {
@@ -185,10 +188,12 @@ function bool CanAffordAllArtifactCosts(Array<ArtifactCost> Costs)
   return CanAfford;
 }
 
+
 function bool CanAffordArtifactCost(ArtifactCost Cost)
 {
   return GetNumItemInInventory(Cost.ItemTemplateName) >= Cost.Quantity;
 }
+
 
 function XComGameState_Item GetItemByName(name ItemTemplateName)
 {
@@ -211,6 +216,7 @@ function XComGameState_Item GetItemByName(name ItemTemplateName)
 	return none;
 }
 
+
 function int GetNumItemInInventory(name ItemTemplateName)
 {
 	local XComGameState_Item ItemState;
@@ -224,10 +230,8 @@ function int GetNumItemInInventory(name ItemTemplateName)
 	return 0;
 }
 
+
 // End Inventory
-
-
-
 function UpdateNextEconomyTick() {
   local StrategyAssetStructure StructureInstance;
   local StrategyAssetProduction ProductionInstance;
@@ -298,6 +302,7 @@ function UpdateNextEconomyTick() {
   );
 }
 
+
 function StrategyAssetProduction AdvanceProduction(
   XComGameState GameState, StrategyAssetProduction ProdInstance
 )
@@ -357,10 +362,6 @@ function StrategyAssetUpkeep AdvanceUpkeep(
 )
 {
   local TDateTime NextTick;
-  local ArtifactCost Output;
-  local X2ItemTemplate ItemTemplate;
-  local XComGameState_Item ItemState;
-	local X2ItemTemplateManager ItemTemplateManager;
 
   if (
     UpkeepInstance.Currently == eStrategyAssetUpkeepState_AwaitingCost ||
@@ -454,8 +455,139 @@ function AdvanceEconomy(XComGameState GameState) {
     Structures[StructureIx] = StructureInstance;
   }
 
-  // maybe calc production too
+  RefreshUpkeepPenalties();
   UpdateNextEconomyTick();
+}
+
+
+function RefreshUpkeepPenalties() {
+  local StrategyAssetStructure StructureInstance;
+  local StrategyAssetProduction ProductionInstance;
+  local StrategyAssetUpkeep UpkeepInstance;
+  local StrategyAssetUpkeepPenalty
+    PenaltyInstance, UpkeepPenaltyInstance, BlankUpkeepPenaltyInstance;
+  local TDateTime Now;
+  local name Penalty;
+  local bool bFound;
+  local int ProductionIx, StructureIx, UpkeepIx,
+            UpkeepPenaltyIx, PenaltyIx, FoundIx;
+
+  Now = GetCurrentTime();
+
+  foreach Upkeep(UpkeepInstance, UpkeepIx)
+  {
+    if (UpkeepInstance.Currently == eStrategyAssetUpkeepState_InPenalty)
+    {
+      `log("Checking UpkeepInstance Penalties for" @ UpkeepInstance.UpkeepID);
+      foreach UpkeepInstance.Penalties(Penalty)
+      {
+        `log("Penalty:" @ Penalty);
+        bFound = false;
+        foreach UpkeepPenalties(PenaltyInstance, PenaltyIx)
+        {
+          if (
+            PenaltyInstance.SourceUpkeepID == UpkeepInstance.UpkeepID &&
+            PenaltyInstance.Penalty == Penalty
+          )
+          {
+            bFound = true;
+
+          }
+        }
+
+        `log("PenaltyFound:" @ bFound);
+        if (!bFound) {
+          UpkeepPenaltyInstance = BlankUpkeepPenaltyInstance;
+          UpkeepPenaltyInstance.SourceUpkeepID = UpkeepInstance.UpkeepID;
+          UpkeepPenaltyInstance.Penalty = Penalty;
+          UpkeepPenaltyInstance.PenaltyStartTime = GetCurrentTime();
+          UpkeepPenalties.AddItem(UpkeepPenaltyInstance);
+          `log("Added Upkeep Penalty" @ UpkeepPenaltyInstance.Penalty);
+        }
+      }
+    } else {
+      `log("Clearing UpkeepInstance Penalties for" @ UpkeepInstance.UpkeepID);
+      foreach UpkeepInstance.Penalties(Penalty)
+      {
+        `log("Penalty:" @ Penalty);
+        bFound = false;
+        FoundIx = -1;
+        foreach UpkeepPenalties(PenaltyInstance, PenaltyIx)
+        {
+          if (
+            PenaltyInstance.SourceUpkeepID == UpkeepInstance.UpkeepID &&
+            PenaltyInstance.Penalty == Penalty
+          )
+          {
+            bFound = true;
+            FoundIx = PenaltyIx;
+          }
+        }
+
+        `log("PenaltyFound:" @ bFound);
+        if (bFound) {
+          UpkeepPenalties.Remove(FoundIx, 1);
+          `log("Removed Upkeep Penalty" @ Penalty);
+        }
+      }
+    }
+  }
+
+  foreach Structures(StructureInstance, StructureIx)
+  {
+    foreach StructureInstance.Upkeep(UpkeepInstance, UpkeepIx)
+    {
+      if (UpkeepInstance.Currently == eStrategyAssetUpkeepState_InPenalty)
+      {
+        foreach UpkeepInstance.Penalties(Penalty)
+        {
+          bFound = false;
+          foreach StructureInstance.UpkeepPenalties(PenaltyInstance, PenaltyIx)
+          {
+            if (
+              PenaltyInstance.SourceUpkeepID == UpkeepInstance.UpkeepID &&
+              PenaltyInstance.Penalty == Penalty
+            )
+            {
+              bFound = true;
+
+            }
+          }
+
+          if (!bFound) {
+            UpkeepPenaltyInstance = BlankUpkeepPenaltyInstance;
+            UpkeepPenaltyInstance.SourceUpkeepID = UpkeepInstance.UpkeepID;
+            UpkeepPenaltyInstance.Penalty = Penalty;
+            UpkeepPenaltyInstance.PenaltyStartTime = GetCurrentTime();
+            StructureInstance.UpkeepPenalties.AddItem(UpkeepPenaltyInstance);
+          }
+        }
+      } else {
+        foreach UpkeepInstance.Penalties(Penalty)
+        {
+          bFound = false;
+          FoundIx = -1;
+          foreach StructureInstance.UpkeepPenalties(PenaltyInstance, PenaltyIx)
+          {
+            if (
+              PenaltyInstance.SourceUpkeepID == UpkeepInstance.UpkeepID &&
+              PenaltyInstance.Penalty == Penalty
+            )
+            {
+              bFound = true;
+              FoundIx = PenaltyIx;
+            }
+          }
+
+          if (bFound) {
+            StructureInstance.UpkeepPenalties.Remove(FoundIx, 1);
+          }
+        }
+      }
+    }
+
+    Structures[StructureIx] = StructureInstance;
+  }
 }
 
 
@@ -464,6 +596,13 @@ function GlobalResistance_GameState_StrategyAsset CalculateProduction()
   local GlobalResistance_StrategyAssetTemplate Template;
   Template = GetMyTemplate();
   return Template.CalculateProductionDelegate(self);
+}
+
+function GlobalResistance_GameState_StrategyAsset CalculateUpkeep()
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  Template = GetMyTemplate();
+  return Template.CalculateUpkeepDelegate(self);
 }
 
 
@@ -616,11 +755,11 @@ function array<GlobalResistance_GameState_StrategyAsset> GetShortestPathToAsset 
   local GlobalResistance_GameState_Road ChildRoad;
   local array<GlobalResistance_GameState_StrategyAsset> FinalPath;
   local GlobalResistance_GameState_StrategyAsset
-    NearestNodeToTarget, NearestNodeToSelf, TestNode, ChildNode;
+    NearestNodeToTarget, NearestNodeToSelf, TestNode;
   local array<AssetSearchNode> UnvisitedSet, VisitedSet;
   local AssetSearchNode BlankNode, TestSearchNode, ChildSearchNode, IterNode;
   local StateObjectReference StateRef, ChildRef;
-  local float Distance, SelfDistance, DirectDistance, TargetDistance, LowestDistance;
+  local float Distance, SelfDistance, TargetDistance, LowestDistance;
   local int Ix, IterIx;
   local bool bIsValid, bFoundTarget;
 
@@ -750,9 +889,9 @@ function SetWaypointsToAsset (
 }
 
 
-function SetToRandomLocationInRegion(XComGameState_WorldRegion Region)
+function SetToRandomLocationInRegion(XComGameState_WorldRegion WorldRegion)
 {
-  Location = Region.GetRandomLocationInRegion(,,self);
+  Location = WorldRegion.GetRandomLocationInRegion(,,self);
 }
 
 
@@ -800,7 +939,6 @@ function UpdateMovement(float fDeltaT)
   local float DistanceRemaining, TravelDistance;
   local StrategyAssetWaypoint CurrentWaypoint;
   local XComGameState_WorldRegion RegionState;
-  local GlobalResistance_StrategyAssetTemplate Template;
 
   if (Location.X == -1.0 && Location.Y == -1.0) {
     RegionState = GetWorldRegion();
@@ -906,14 +1044,12 @@ function bool RequiresSquad()
 
 function UpdateGameBoard()
 {	
-	local XComGameStateHistory History;
 	local XComGameState NewGameState;
   local GlobalResistance_GameState_StrategyAsset NewAsset;
 
   if (class'X2StrategyGameRulesetDataStructures'.static.LessThan(NextEconomyTick, GetCurrentTime()))
   {
     `log("EconomyTick RUNS");
-    History = `XCOMHISTORY;
     NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("EconomyTickStrategyAsset");
     NewAsset = GlobalResistance_GameState_StrategyAsset(
       NewGameState.CreateStateObject(
