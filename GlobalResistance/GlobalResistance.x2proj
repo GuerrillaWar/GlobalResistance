@@ -154,6 +154,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyMapItem_Road.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyMapItem_StrategyAssetDebug.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\X2DownloadableContentInfo_GlobalResistance.uc">
       <SubType>Content</SubType>
     </Content>

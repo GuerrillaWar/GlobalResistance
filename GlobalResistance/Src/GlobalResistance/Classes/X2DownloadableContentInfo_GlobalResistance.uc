@@ -2,9 +2,26 @@
 
 class X2DownloadableContentInfo_GlobalResistance extends X2DownloadableContentInfo Config(Game);
 
+
+
 static event OnPostTemplatesCreated()
 {
   `log("GlobalResistance :: Present And Correct");
+}
+
+exec function StrategyShowEconomicStates()
+{
+  class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowEconomicStates();
+}
+
+exec function StrategyShowInventory()
+{
+  class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowInventory();
+}
+
+exec function StrategyShowForces()
+{
+  class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowForces();
 }
 
 static event OnPreMission(XComGameState NewGameState, XComGameState_MissionSite MissionState)

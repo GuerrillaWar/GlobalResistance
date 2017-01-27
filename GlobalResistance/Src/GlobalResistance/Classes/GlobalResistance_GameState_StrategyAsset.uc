@@ -12,10 +12,6 @@ struct AssetSearchNode
 };
 
 
-
-
-
-
 struct GenericUnitCount
 {
   var int Count;
@@ -37,22 +33,22 @@ struct StrategyAssetWaypoint
   var StateObjectReference DestinationRef;
 };
 
-var() TDateTime NextEconomyTick;
-var() array<StrategyAssetProduction> Production;
-var() array<StrategyAssetUpkeep> Upkeep;
-var() array<StrategyAssetUpkeepPenalty> UpkeepPenalties;
-var() array<StrategyAssetStructure> Structures;
-var() array<StrategyAssetSquad> Squads;
-var() array<StateObjectReference> Inventory;
-var() array<StateObjectReference> ConnectedRoads;
-var() array<StrategyAssetWaypoint> Waypoints;
-var() Vector Destination;
-var() Vector Velocity;
+var TDateTime NextEconomyTick;
+var array<StrategyAssetProduction> Production;
+var array<StrategyAssetUpkeep> Upkeep;
+var array<StrategyAssetUpkeepPenalty> UpkeepPenalties;
+var array<StrategyAssetStructure> Structures;
+var array<StrategyAssetSquad> Squads;
+var array<StateObjectReference> Inventory;
+var array<StateObjectReference> ConnectedRoads;
+var array<StrategyAssetWaypoint> Waypoints;
+var Vector Destination;
+var Vector Velocity;
 
 // investigate plot storage heeyah
 
-var() protected name                      m_TemplateName;
-var() protected GlobalResistance_StrategyAssetTemplate    m_AssetTemplate;
+var protected name                      m_TemplateName;
+var protected GlobalResistance_StrategyAssetTemplate    m_AssetTemplate;
 
 static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate(XComGameState NewGameState, name TemplateName)
 {
@@ -193,7 +189,6 @@ function bool CanAffordArtifactCost(ArtifactCost Cost)
 {
   return GetNumItemInInventory(Cost.ItemTemplateName) >= Cost.Quantity;
 }
-
 
 function XComGameState_Item GetItemByName(name ItemTemplateName)
 {
@@ -984,7 +979,7 @@ function bool AboutToExpire()
 
 function class<UIStrategyMapItem> GetUIClass()
 {
-  return class'UIStrategyMapItem_Mission';
+  return class'GlobalResistance_UIStrategyMapItem_StrategyAssetDebug';
 }
 
 function string GetUIWidgetFlashLibraryName()
