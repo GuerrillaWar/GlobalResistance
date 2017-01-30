@@ -26,7 +26,6 @@ function UpdateLinkMesh()
 	local Object MaterialObject;
 	local XComGameStateHistory History;
 	local GlobalResistance_GameState_Road RoadState;
-	local XComGameState_WorldRegion RegionStateA, RegionStateB;
 	local vector NewScale, NewLocation;
 	local string DesiredPath;
 	local int idx;

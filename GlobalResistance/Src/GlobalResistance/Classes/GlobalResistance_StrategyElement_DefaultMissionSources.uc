@@ -161,7 +161,6 @@ static function X2DataTemplate CreateSabotageAdventBlacksite()
 
 function DestroyStrategyAssetOnSuccess(XComGameState NewGameState, XComGameState_MissionSite MissionState)
 {
-  local GlobalResistance_GameState_AvatarFacilityStrategyAsset Asset;
   local GlobalResistance_GameState_MissionSite GlobalResistanceMissionState;
 
   GlobalResistanceMissionState = GlobalResistance_GameState_MissionSite(MissionState);

@@ -31,7 +31,6 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
 {
   local GlobalResistance_GameState_WorldRegion RegionState;
   local GlobalResistance_GameState_CityStrategyAsset CCZ;
-  local array<GlobalResistance_GameState_CityStrategyAsset> arrCCZ;
   local GlobalResistance_GameState_GuardPostAsset GPA;
   local array<X2StrategyElementTemplate> arrCityTemplates;
   local array<X2StrategyElementTemplate> arrGPTemplates;
@@ -121,6 +120,8 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
       CCZ.AddStructureOfType('SupplyCentre');
       CCZ.AddStructureOfType('SupplyCentre');
       CCZ.AddStructureOfType('SupplyCentre');
+      CCZ.AddStructureOfType('Farm');
+      CCZ.AddStructureOfType('Farm');
     }
 
     StartState.AddStateObject(CCZ);

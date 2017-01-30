@@ -56,4 +56,5 @@ static event InstallNewCampaign(XComGameState StartState)
 {
  class'GlobalResistance_StrategyStart_CityStrategyAssets'.static.SetUpCityControlZones(StartState);
  class'GlobalResistance_StrategyStart_AvatarAssets'.static.SetUpAssets(StartState);
+ class'GlobalResistance_StrategyStart_RegionAIs'.static.SetUpAIs(StartState);
 }

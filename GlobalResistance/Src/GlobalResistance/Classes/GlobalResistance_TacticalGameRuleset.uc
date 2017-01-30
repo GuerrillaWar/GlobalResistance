@@ -10,8 +10,7 @@ simulated state CreateTacticalGame
     local GlobalResistance_GameState_StrategyAsset StrategyAsset;
     local XComAISpawnManager SpawnManager;
     local Array<StrategyAssetSquad> VanguardSquads;
-    local StrategyAssetSquad Squad, BlankSquad;
-    local GenericUnitCount UnitCount, BlankUnitCount;
+    local StrategyAssetSquad Squad;
     local Vector ObjectiveLocation, DropLocation;
     local int AlertLevel, ForceLevel, Offset;
 

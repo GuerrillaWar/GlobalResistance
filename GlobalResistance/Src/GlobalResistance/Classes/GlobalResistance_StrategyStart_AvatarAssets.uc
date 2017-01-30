@@ -1,29 +1,26 @@
 // This is an Unreal Script
 class GlobalResistance_StrategyStart_AvatarAssets extends Object;
 
+
 static function X2StrategyElementTemplateManager GetMyTemplateManager()
 {
   return class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 }
+
 
 static function SetUpAssets(XComGameState StartState, optional bool bTutorialEnabled = false)
 {
   local XComGameState_WorldRegion RegionState;
   local array<XComGameState_WorldRegion> AllRegions;
   local GlobalResistance_GameState_StrategyAsset Asset;
-  local GlobalResistance_GameState_AvatarFacilityStrategyAsset AvatarFacility;
 
-	foreach StartState.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
-	{
+  foreach StartState.IterateByClassType(class'XComGameState_WorldRegion', RegionState)
+  {
     AllRegions.AddItem(RegionState);
   }
 
   Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
-  AvatarFacility = GlobalResistance_GameState_AvatarFacilityStrategyAsset(Asset);
-  AvatarFacility.Doom = 1;
   Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AvatarFacility', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
-  AvatarFacility = GlobalResistance_GameState_AvatarFacilityStrategyAsset(Asset);
-  AvatarFacility.Doom = 1;
   Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
   Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
   Asset = AddStrategyAssetToRegion(StartState, 'StrategyAsset_AdventBlacksite', AllRegions[`SYNC_RAND_STATIC(AllRegions.Length)]);
@@ -55,6 +52,7 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
   return Asset;
 }
 
+
 static function AddSquadToAsset(GlobalResistance_GameState_StrategyAsset Asset)
 {
   local StrategyAssetSquad Squad;
@@ -77,4 +75,3 @@ static function AddSquadToAsset(GlobalResistance_GameState_StrategyAsset Asset)
 
   Asset.Squads.AddItem(Squad);
 }
-

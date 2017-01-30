@@ -313,7 +313,6 @@ static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateP
   local StrategyAssetProductionDefinition ProductionDef;
   local int ProdIx, StructureIx;
   local bool bFound;
-  local TDateTime CurrentTime;
 
   Template = Asset.GetMyTemplate();
 
@@ -393,7 +392,6 @@ static function GlobalResistance_GameState_StrategyAsset TypicalAsset_CalculateU
   local StrategyAssetUpkeepDefinition UpkeepDef;
   local int UpkeepIx, StructureIx;
   local bool bFound;
-  local TDateTime CurrentTime;
 
   Template = Asset.GetMyTemplate();
 

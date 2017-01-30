@@ -79,7 +79,6 @@ static function GlobalResistance_GameState_StrategyAsset CreateAssetFromTemplate
 //---------------------------------------------------------------------------------------
 function AddStructureOfType(name StructureType)
 {
-  local GlobalResistance_StrategyAssetTemplate Template;
   local StrategyAssetStructure Structure;
 
   /* Template = GetMyTemplate(); */
@@ -298,6 +297,21 @@ function UpdateNextEconomyTick() {
 }
 
 
+function PutCostInInventory(XComGameState GameState, ArtifactCost Cost)
+{
+  local X2ItemTemplate ItemTemplate;
+  local XComGameState_Item ItemState;
+	local X2ItemTemplateManager ItemTemplateManager;
+
+  ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+  ItemTemplate = ItemTemplateManager.FindItemTemplate(Cost.ItemTemplateName);
+  ItemState = ItemTemplate.CreateInstanceFromTemplate(GameState);
+  ItemState.Quantity = Cost.Quantity;
+  GameState.AddStateObject(ItemState);
+  PutItemInInventory(GameState, ItemState);
+}
+
+
 function StrategyAssetProduction AdvanceProduction(
   XComGameState GameState, StrategyAssetProduction ProdInstance
 )
@@ -457,17 +471,13 @@ function AdvanceEconomy(XComGameState GameState) {
 
 function RefreshUpkeepPenalties() {
   local StrategyAssetStructure StructureInstance;
-  local StrategyAssetProduction ProductionInstance;
   local StrategyAssetUpkeep UpkeepInstance;
   local StrategyAssetUpkeepPenalty
     PenaltyInstance, UpkeepPenaltyInstance, BlankUpkeepPenaltyInstance;
-  local TDateTime Now;
   local name Penalty;
   local bool bFound;
-  local int ProductionIx, StructureIx, UpkeepIx,
-            UpkeepPenaltyIx, PenaltyIx, FoundIx;
-
-  Now = GetCurrentTime();
+  local int StructureIx, UpkeepIx,
+            PenaltyIx, FoundIx;
 
   foreach Upkeep(UpkeepInstance, UpkeepIx)
   {
@@ -1037,6 +1047,24 @@ function bool RequiresSquad()
 }
 
 
+function GlobalResistance_GameState_RegionCommandAI GetRegionAI ()
+{
+  local XComGameStateHistory History;
+  local GlobalResistance_GameState_RegionCommandAI AI;
+
+  History = `XCOMHISTORY;
+
+  foreach History.IterateByClassType(
+    class'GlobalResistance_GameState_RegionCommandAI', AI
+  )
+  {
+    if (AI.Region.ObjectID == Region.ObjectID) { return AI; }
+  }
+
+  return none;
+}
+
+
 function UpdateGameBoard()
 {	
 	local XComGameState NewGameState;
@@ -1055,12 +1083,9 @@ function UpdateGameBoard()
     NewAsset.AdvanceEconomy(NewGameState);
     NewGameState.AddStateObject(NewAsset);
     `XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
-  }
 
-	/* if (NewGameState.GetNumGameStateObjects() > 0) */
-	/* { */
-	/* 	`XCOMGAME.GameRuleset.SubmitGameState(NewGameState); */
-	/* } */
+    GetRegionAI().Update();
+  }
 }
 
 

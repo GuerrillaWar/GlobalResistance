@@ -6,14 +6,11 @@ static function SpawnSquad(StrategyAssetSquad Squad, Vector Location, XComGameSt
   local XComGameState_AIGroup AIGroup;
   local GenericUnitCount UnitCount;
   local XComWorldData WorldData;
-  local Name TemplateName;
-  local Vector DropLocation;
   local StateObjectReference UnitRef;
   local Array<TilePosPair> PosCandidates;
   local TilePosPair PosCandidate;
   local XComGameState_AIPlayerData kAIData;
   local bool CandidateValid;
-  local TTile kTile;
   local int Ix, CandidateCursor;
 
   WorldData = `XWORLD;
