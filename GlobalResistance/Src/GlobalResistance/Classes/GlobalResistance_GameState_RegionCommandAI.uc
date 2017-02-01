@@ -22,10 +22,11 @@ struct EconomicTrend
 struct EconomicNeed
 {
   var int Quantity;
+  var int QuantityDispatched;
   var name ItemTemplateName;
   var int Runway; // time before need is critical
   var int AssetObjectID;
-  var int DispatchObjectID;
+  var array<int> DispatchIDs;
   var NeedStatus Status;
 };
 
@@ -179,6 +180,43 @@ function AdvanceEconomicChecks ()
 }
 
 
+function ReportCompletedDispatch(
+  XComGameState NewGameState,
+  GlobalResistance_GameState_StrategyAsset Destination,
+  GlobalResistance_GameState_StrategyAsset Source,
+  ArtifactCost Transfer
+)
+{
+  local EconomicNeed Need;
+  local int FoundIx, NeedIx, DispatchIDIx;
+
+  FoundIx = INDEX_NONE;
+
+  foreach EconomicNeeds(Need, NeedIx)
+  {
+    if ( 
+      Need.AssetObjectID == Destination.ObjectID &&
+      Need.ItemTemplateName == Transfer.ItemTemplateName
+    )
+    {
+      EconomicNeeds[NeedIx].DispatchIDs.RemoveItem(Source.ObjectID);
+      EconomicNeeds[NeedIx].QuantityDispatched -= Transfer.Quantity;
+      EconomicNeeds[NeedIx].Quantity -= Transfer.Quantity;
+      if (EconomicNeeds[NeedIx].Quantity <= 0)
+      {
+        FoundIx = NeedIx;
+        EconomicNeeds[NeedIx].Status = eNeedStatus_Fulfilled;
+      }
+    }
+  }
+
+  if (FoundIx != INDEX_NONE)
+  {
+    EconomicNeeds.Remove(FoundIx, 1);
+  }
+}
+
+
 function DispatchConvoys(XComGameState NewGameState)
 {
   local EconomicNeed Need;
@@ -189,7 +227,10 @@ function DispatchConvoys(XComGameState NewGameState)
 
   foreach EconomicNeeds(Need, NeedIx)
   {
-    if (Need.Status != eNeedStatus_Unfulfilled)
+    if (
+      Need.Status != eNeedStatus_Unfulfilled &&
+      Need.Quantity > Need.QuantityDispatched
+    )
     {
       continue;
     }
@@ -197,10 +238,7 @@ function DispatchConvoys(XComGameState NewGameState)
     FoundIx = INDEX_NONE;
     foreach EconomicAvailabilities(Availability, AvailabilityIx)
     {
-      if (
-        Availability.ItemTemplateName == Need.ItemTemplateName &&
-        Availability.Quantity >= Need.Quantity
-      )
+      if (Availability.ItemTemplateName == Need.ItemTemplateName)
       {
         FoundIx = AvailabilityIx;
       }
@@ -218,21 +256,27 @@ function DispatchConvoys(XComGameState NewGameState)
         Need.AssetObjectID
       ));
 
-      Transfer.Quantity = Availability.Quantity;
+      Transfer.Quantity = Min(
+        Availability.Quantity,
+        Need.Quantity - Need.QuantityDispatched
+      );
       Transfer.ItemTemplateName = Availability.ItemTemplateName;
       FromAsset.ConsumeArtifactCost(NewGameState, Transfer);
-
 
       Convoy = class'GlobalResistance_GameState_StrategyAsset'.static.CreateAssetFromTemplate(
         NewGameState, 'StrategyAsset_AdventConvoy'
       );
       Convoy.Location = FromAsset.Location;
       Convoy.PutCostInInventory(NewGameState, Transfer);
-      Convoy.SetWaypointsToAsset(ToAsset, 'Standard');
+      Convoy.SetWaypointsToAsset(ToAsset, 'Standard', 'DeliverAndDisband');
       NewGameState.AddStateObject(Convoy);
 
-      EconomicNeeds[NeedIx].Status = eNeedStatus_Dispatched;
-      EconomicNeeds[NeedIx].DispatchObjectID = Convoy.ObjectID;
+      EconomicNeeds[NeedIx].QuantityDispatched += Transfer.Quantity;
+      if (EconomicNeeds[NeedIx].QuantityDispatched >= Need.Quantity)
+      {
+        EconomicNeeds[NeedIx].Status = eNeedStatus_Dispatched;
+      }
+      EconomicNeeds[NeedIx].DispatchIDs.AddItem(Convoy.ObjectID);
 
       EconomicAvailabilities.Remove(FoundIx, 1);
     }

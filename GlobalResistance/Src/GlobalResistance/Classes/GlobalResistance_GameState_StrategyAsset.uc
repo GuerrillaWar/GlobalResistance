@@ -31,6 +31,7 @@ struct StrategyAssetWaypoint
   var Vector Location; 
   var bool Tracking;
   var StateObjectReference DestinationRef;
+  var name DestinationJob;
 };
 
 var TDateTime NextEconomyTick;
@@ -210,6 +211,31 @@ function XComGameState_Item GetItemByName(name ItemTemplateName)
 	return none;
 }
 
+function array<ArtifactCost> GetInventoryAsArtifacts()
+{
+  local array<ArtifactCost> Artifacts;
+  local ArtifactCost Artifact;
+	local XComGameStateHistory History;
+	local XComGameState_Item InventoryItemState;
+	local int i;
+
+	History = `XCOMHISTORY;
+
+	for( i = 0; i < Inventory.Length; i++ )
+	{
+		InventoryItemState = XComGameState_Item(History.GetGameStateForObjectID(Inventory[i].ObjectId));
+
+		if( InventoryItemState != none)
+		{
+			Artifact.Quantity = InventoryItemState.Quantity;
+			Artifact.ItemTemplateName = InventoryItemState.GetMyTemplateName();
+      Artifacts.AddItem(Artifact);
+		}
+	}
+
+	return Artifacts;
+}
+
 
 function int GetNumItemInInventory(name ItemTemplateName)
 {
@@ -297,7 +323,7 @@ function UpdateNextEconomyTick() {
 }
 
 
-function PutCostInInventory(XComGameState GameState, ArtifactCost Cost)
+function bool PutCostInInventory(XComGameState GameState, ArtifactCost Cost)
 {
   local X2ItemTemplate ItemTemplate;
   local XComGameState_Item ItemState;
@@ -308,7 +334,7 @@ function PutCostInInventory(XComGameState GameState, ArtifactCost Cost)
   ItemState = ItemTemplate.CreateInstanceFromTemplate(GameState);
   ItemState.Quantity = Cost.Quantity;
   GameState.AddStateObject(ItemState);
-  PutItemInInventory(GameState, ItemState);
+  return PutItemInInventory(GameState, ItemState);
 }
 
 
@@ -875,6 +901,7 @@ function array<GlobalResistance_GameState_StrategyAsset> GetShortestPathToAsset 
 function SetWaypointsToAsset (
   GlobalResistance_GameState_StrategyAsset Asset,
   name Speed,
+  name DestinationJob = 'Wait',
   bool Track = false
 ) {
   local GlobalResistance_GameState_StrategyAsset PathNode;
@@ -890,7 +917,7 @@ function SetWaypointsToAsset (
     }
   }
 
-  AddAssetWaypoint(Asset, Speed, Track);
+  AddAssetWaypoint(Asset, Speed, DestinationJob, Track);
 }
 
 
@@ -903,6 +930,7 @@ function SetToRandomLocationInRegion(XComGameState_WorldRegion WorldRegion)
 function AddAssetWaypoint (
   GlobalResistance_GameState_StrategyAsset Asset,
   name Speed,
+  name DestinationJob,
   bool Track = false
 ) {
   local StrategyAssetWaypoint Waypoint;
@@ -910,6 +938,7 @@ function AddAssetWaypoint (
   Waypoint.Location = Asset.Location;
   Waypoint.DestinationRef = Asset.GetReference();
   Waypoint.Speed = Speed;
+  Waypoint.DestinationJob = DestinationJob;
   Waypoint.Tracking = Track;
   
   Waypoints.AddItem(Waypoint);
@@ -965,6 +994,11 @@ function UpdateMovement(float fDeltaT)
       TravelDistance -= DistanceRemaining;
       Location.X = CurrentWaypoint.Location.X;
       Location.Y = CurrentWaypoint.Location.Y;
+
+      if (CurrentWaypoint.DestinationRef.ObjectID != 0)
+      {
+        PerformWaypointJob(CurrentWaypoint);
+      }
       Waypoints.RemoveItem(CurrentWaypoint);
     }
   }
@@ -1089,7 +1123,63 @@ function UpdateGameBoard()
 }
 
 
+function PerformWaypointJob(StrategyAssetWaypoint Waypoint)
+{
+  if (Waypoint.DestinationJob == 'DeliverAndDisband')
+  {
+    DeliverAndDisband(Waypoint);
+  }
+}
 
+function DeliverAndDisband(StrategyAssetWaypoint Waypoint)
+{
+	local XComGameState NewGameState;
+  local array<ArtifactCost> ArtifactTransfers;
+  local ArtifactCost ArtifactTransfer;
+  local bool DeliveryChange, DeliveryDidChange;
+  local GlobalResistance_GameState_StrategyAsset DeliveryAsset;
+  local GlobalResistance_GameState_RegionCommandAI NewAI;
+
+  NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("EconomyTickStrategyAsset");
+  DeliveryAsset = GlobalResistance_GameState_StrategyAsset(
+    NewGameState.CreateStateObject(
+      class'GlobalResistance_GameState_StrategyAsset', 
+      Waypoint.DestinationRef.ObjectID
+    )
+  );
+  NewAI = GlobalResistance_GameState_RegionCommandAI(
+    NewGameState.CreateStateObject(
+      class'GlobalResistance_GameState_RegionCommandAI', 
+      DeliveryAsset.GetRegionAI().ObjectID
+    )
+  );
+
+  ArtifactTransfers = GetInventoryAsArtifacts();
+  foreach ArtifactTransfers(ArtifactTransfer)
+  {
+    ConsumeArtifactCost(NewGameState, ArtifactTransfer);
+    DeliveryChange = DeliveryAsset.PutCostInInventory(NewGameState, ArtifactTransfer);
+    if (DeliveryChange) {
+      DeliveryDidChange = true;
+    }
+    NewAI.ReportCompletedDispatch(
+      NewGameState, DeliveryAsset, self, ArtifactTransfer
+    );
+  }
+
+  if (DeliveryDidChange)
+  {
+    NewGameState.AddStateObject(DeliveryAsset);
+  }
+  else
+  {
+    NewGameState.PurgeGameStateForObjectID(DeliveryAsset.ObjectID);
+  }
+  NewGameState.AddStateObject(NewAI);
+  NewGameState.RemoveStateObject(ObjectID);
+  Remove3DUI();
+  `XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
+}
 
 simulated function name GetMyTemplateName()
 {
