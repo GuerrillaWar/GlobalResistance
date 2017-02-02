@@ -30,6 +30,10 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
   local XComGameState_Item Item;
 	local XComGameStateHistory History;
   local string AssetDesc;
+  local array<EconomicNeed> arrNeeds;
+  local EconomicNeed Need;
+  local array<EconomicAvailability> arrAvailabilities;
+  local EconomicAvailability Availability;
 
 	if( !bIsInited ) return; 
 
@@ -92,6 +96,31 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
       Item = XComGameState_Item(History.GetGameStateForObjectID(ItemRef.ObjectId));
       AssetDesc = AssetDesc $
         Item.GetMyTemplateName() @ "-" @ Item.Quantity $ "\n";
+    }
+  }
+  else if (
+    class'GlobalResistance_DebugManager'.static.GetSingleton().bStrategyShowEconomicSignals
+  )
+  {
+    arrNeeds = Asset.GetRegionAI().GetEconomicNeedsForAssetID(Asset.ObjectID);
+    arrAvailabilities = Asset.GetRegionAI().GetEconomicAvailabilitiesForAssetID(Asset.ObjectID);
+
+    if (arrNeeds.Length > 0)
+    {
+      AssetDesc = AssetDesc $ "NEEDS:\n";
+      foreach arrNeeds(Need)
+      {
+        AssetDesc = AssetDesc $ Need.ItemTemplateName @ Need.QuantityDispatched $ "/" $ Need.Quantity $ "\n";
+      }
+    }
+
+    if (arrAvailabilities.Length > 0)
+    {
+      AssetDesc = AssetDesc $ "AVAILABLE:\n";
+      foreach arrAvailabilities(Availability)
+      {
+        AssetDesc = AssetDesc $ Availability.ItemTemplateName @ Availability.Quantity $ "\n";
+      }
     }
   }
 

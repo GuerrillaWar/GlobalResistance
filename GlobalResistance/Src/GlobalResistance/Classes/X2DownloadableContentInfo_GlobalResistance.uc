@@ -9,6 +9,11 @@ static event OnPostTemplatesCreated()
   `log("GlobalResistance :: Present And Correct");
 }
 
+exec function StrategyShowEconomicSignals()
+{
+  class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowEconomicSignals();
+}
+
 exec function StrategyShowEconomicStates()
 {
   class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowEconomicStates();

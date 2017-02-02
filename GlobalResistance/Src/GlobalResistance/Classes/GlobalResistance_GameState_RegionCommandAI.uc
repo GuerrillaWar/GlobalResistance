@@ -180,6 +180,36 @@ function AdvanceEconomicChecks ()
 }
 
 
+function array<EconomicNeed> GetEconomicNeedsForAssetID (int AssetID)
+{
+  local array<EconomicNeed> arrNeeds;
+  local EconomicNeed Need;
+
+  foreach EconomicNeeds(Need)
+  {
+    if (Need.AssetObjectID == AssetID) { arrNeeds.AddItem(Need); }
+  }
+
+  return arrNeeds;
+}
+
+
+function array<EconomicAvailability> GetEconomicAvailabilitiesForAssetID (int AssetID)
+{
+  local array<EconomicAvailability> arrAvailabilities;
+  local EconomicAvailability Availability;
+
+  foreach EconomicAvailabilities(Availability)
+  {
+    if (Availability.AssetObjectID == AssetID) {
+      arrAvailabilities.AddItem(Availability);
+    }
+  }
+
+  return arrAvailabilities;
+}
+
+
 function ReportCompletedDispatch(
   XComGameState NewGameState,
   GlobalResistance_GameState_StrategyAsset Destination,

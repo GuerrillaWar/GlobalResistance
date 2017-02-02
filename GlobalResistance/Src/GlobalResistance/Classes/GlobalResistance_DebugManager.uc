@@ -1,6 +1,7 @@
 class GlobalResistance_DebugManager extends Object;
 
 var bool bStrategyShowEconomicStates;
+var bool bStrategyShowEconomicSignals;
 var bool bStrategyShowInventory;
 var bool bStrategyShowForces;
 
@@ -12,9 +13,18 @@ static function GlobalResistance_DebugManager GetSingleton () {
   );
 }
 
+function StrategyShowEconomicSignals()
+{
+	bStrategyShowEconomicSignals = !bStrategyShowEconomicSignals;
+	bStrategyShowEconomicStates = false;
+	bStrategyShowInventory = false;
+	bStrategyShowForces = false;
+}
+
 function StrategyShowEconomicStates()
 {
 	bStrategyShowEconomicStates = !bStrategyShowEconomicStates;
+	bStrategyShowEconomicSignals = false;
 	bStrategyShowInventory = false;
 	bStrategyShowForces = false;
 }
@@ -22,12 +32,14 @@ function StrategyShowEconomicStates()
 function StrategyShowInventory()
 {
 	bStrategyShowEconomicStates = false;
+	bStrategyShowEconomicSignals = false;
 	bStrategyShowForces = false;
 	bStrategyShowInventory = !bStrategyShowInventory;
 }
 
 function StrategyShowForces()
 {
+	bStrategyShowEconomicSignals = false;
 	bStrategyShowEconomicStates = false;
 	bStrategyShowInventory = false;
 	bStrategyShowForces = !bStrategyShowForces;
