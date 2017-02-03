@@ -1177,7 +1177,7 @@ function DeliverAndDisband(StrategyAssetWaypoint Waypoint)
   }
   NewGameState.AddStateObject(NewAI);
   NewGameState.RemoveStateObject(ObjectID);
-  Remove3DUI();
+  RemoveMapPin();
   `XCOMGAME.GameRuleset.SubmitGameState(NewGameState);
 }
 

@@ -7,6 +7,12 @@ class X2DownloadableContentInfo_GlobalResistance extends X2DownloadableContentIn
 static event OnPostTemplatesCreated()
 {
   `log("GlobalResistance :: Present And Correct");
+  // UIStrategyMap(
+    // class'XComEngine'.static.GetClassDefaultObject(class'UIStrategyMap')
+  // ).MouseGuardClass = class'GlobalResistance_UIMouseGuard_StrategyMap';
+  // UIStrategyMap(
+    // class'XComEngine'.static.GetClassDefaultObject(class'UIStrategyMap')
+  // ).bConsumeMouseEvents = true;
 }
 
 exec function StrategyShowEconomicSignals()

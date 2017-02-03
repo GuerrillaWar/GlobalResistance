@@ -142,6 +142,12 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_TacticalGameRuleset.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIMouseGuard_StrategyMap.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIScreenListener_GeoscapeMobility.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyAsset.uc">
       <SubType>Content</SubType>
     </Content>
@@ -164,6 +170,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategyMapItem_StrategyAssetDebug.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_UIStrategy_GeoscapeMobility.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\GlobalResistance\Classes\X2DownloadableContentInfo_GlobalResistance.uc">
