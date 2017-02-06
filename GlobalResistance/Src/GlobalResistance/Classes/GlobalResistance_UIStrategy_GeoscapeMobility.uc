@@ -7,21 +7,25 @@ function InitMobilityHUD(UIStrategyMap StratHUD)
   AnchorBottomLeft();
 
   OneMinButton = StratHUD.Spawn(class'UIButton', StratHUD);
+  OneMinButton.bAnimateOnInit = false;
   OneMinButton.InitButton('GR_OneMinButton', "1 Min", OnSpeedClicked);
   OneMinButton.AnchorBottomLeft();
   OneMinButton.SetPosition(0, -260);
 
   ThirtyMinutesButton = StratHUD.Spawn(class'UIButton', StratHUD);
+  ThirtyMinutesButton.bAnimateOnInit = false;
   ThirtyMinutesButton.InitButton('GR_ThirtyMinutesButton', "30 Mins", OnSpeedClicked);
   ThirtyMinutesButton.AnchorBottomLeft();
   ThirtyMinutesButton.SetPosition(0, -230);
 
   TwelveHoursButton = StratHUD.Spawn(class'UIButton', StratHUD);
+  TwelveHoursButton.bAnimateOnInit = false;
   TwelveHoursButton.InitButton('GR_TwelveHoursButton', "12 Hrs", OnSpeedClicked);
   TwelveHoursButton.AnchorBottomLeft();
   TwelveHoursButton.SetPosition(0, -200);
   
   FlyButton = StratHUD.Spawn(class'UIButton', StratHUD);
+  FlyButton.bAnimateOnInit = false;
   FlyButton.InitButton('GR_FlyButton', "Move Avenger", OnFlyClicked);
   FlyButton.AnchorBottomLeft();
   FlyButton.SetPosition(0, -300);
