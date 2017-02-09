@@ -18,6 +18,12 @@ struct GenericUnitCount
   var name CharacterTemplate;
 };
 
+struct RecoveringGenericUnit
+{
+  var TDateTime RecoverTime;
+  var GenericUnitCount Units;
+};
+
 struct StrategyAssetSquad
 {
   var array<GenericUnitCount> GenericUnits;  // stored in character template name only
@@ -39,7 +45,11 @@ var array<StrategyAssetProduction> Production;
 var array<StrategyAssetUpkeep> Upkeep;
 var array<StrategyAssetUpkeepPenalty> UpkeepPenalties;
 var array<StrategyAssetStructure> Structures;
+
 var array<StrategyAssetSquad> Squads;
+var array<GenericUnitCount> Reserves;
+var array<RecoveringGenericUnit> RecoveringReserves;
+
 var array<StateObjectReference> Inventory;
 var array<StateObjectReference> ConnectedRoads;
 var array<StrategyAssetWaypoint> Waypoints;
