@@ -26,6 +26,8 @@ struct RecoveringGenericUnit
 
 struct StrategyAssetSquad
 {
+  var name SquadType;
+  var name Role;
   var array<GenericUnitCount> GenericUnits;  // stored in character template name only
   var array<StateObjectReference> UniqueUnits; // stored as references to actual Unit States
 };

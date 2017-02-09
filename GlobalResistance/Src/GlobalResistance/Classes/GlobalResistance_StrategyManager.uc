@@ -8,15 +8,15 @@ struct SquadMemberDefinition
   var name GroupName;
   // loadout name optional, assume default if not specified
   var name LoadoutName;
-}
+};
 
 struct SquadDefinition
 {
   var name ID;
   var array<name> Roles;
-  var SquadDefinition Leader;
-  var array<SquadDefinitio> Followers;
-}
+  var SquadMemberDefinition Leader;
+  var array<SquadMemberDefinition> Followers;
+};
 
 
 

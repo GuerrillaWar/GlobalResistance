@@ -56,6 +56,7 @@ static function ApplyTemplateDefinition(
       Template.Upkeep = TemplateDef.Upkeep;
       Template.UnitCapacity = TemplateDef.UnitCapacity;
       Template.InventoryCapacity = TemplateDef.InventoryCapacity;
+      Template.MilitaryRequirements = TemplateDef.MilitaryRequirements;
     }
   }
 }
@@ -181,8 +182,7 @@ static function X2DataTemplate CreateAdventBlacksite()
 
   Template.AssetCategory = eStrategyAssetCategory_Static;
   Template.DefaultTeam = eTeam_Alien;
-  Template.InventoryCapacity = 1000;
-  Template.UnitCapacity = 40;
+  ApplyTemplateDefinition('Blacksite', Template);
   Template.HasCoreStructure = true;
   Template.CoreStructure = GetStructureDefinition('Blacksite');
   Template.AllowedStructures.AddItem(GetStructureDefinition('Blacksite'));

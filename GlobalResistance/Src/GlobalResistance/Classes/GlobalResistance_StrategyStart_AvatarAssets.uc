@@ -58,6 +58,9 @@ static function AddSquadToAsset(GlobalResistance_GameState_StrategyAsset Asset)
   local StrategyAssetSquad Squad;
   local GenericUnitCount UnitCount, BlankUnitCount;
 
+  Squad.SquadType = 'BigSquad';
+  Squad.Role = 'CoreDefender';
+
   UnitCount = BlankUnitCount;
   UnitCount.Count = 1;
   UnitCount.CharacterTemplate = 'AdvCaptainM1';

@@ -1,6 +1,7 @@
 class GlobalResistance_GameState_RegionCommandAI
 extends XComGameState_BaseObject
-dependson(GlobalResistance_StrategyAssetTemplate);
+dependson(GlobalResistance_StrategyAssetTemplate,
+          GlobalResistance_GameState_StrategyAsset);
 
 
 enum NeedStatus
@@ -19,6 +20,14 @@ struct EconomicTrend
 };
 
 
+struct MilitaryStatus
+{
+  var int QuantityNeeded;
+  var int Quantity;
+  var name Role;
+};
+
+
 struct EconomicNeed
 {
   var int Quantity;
@@ -30,6 +39,30 @@ struct EconomicNeed
   var NeedStatus Status;
 };
 
+
+struct MilitaryNeed
+{
+  var int Quantity;
+  var int QuantityDispatched;
+  var name Role;
+  var int AssetObjectID;
+  var array<int> DispatchIDs;
+  var NeedStatus Status;
+};
+
+struct MilitarySquadAvailability
+{
+  var int Quantity;
+  var name Role;
+  var int AssetObjectID;
+};
+
+struct MilitaryReserveAvailability
+{
+  var int Quantity;
+  var name CharacterTemplate;
+  var int AssetObjectID;
+};
 
 struct EconomicAvailability
 {
@@ -45,12 +78,84 @@ var TDateTime NextAITick;
 var StateObjectReference    Region;
 var array<EconomicNeed> EconomicNeeds;
 var array<EconomicAvailability> EconomicAvailabilities;
+var array<MilitaryNeed> MilitaryNeeds;
+var array<MilitarySquadAvailability> MilitarySquadAvailabilities;
+var array<MilitaryReserveAvailability> MilitaryReserveAvailabilities;
 
 
 function PushNextAITick ()
 {
   NextAITick = GetCurrentTime();
   class'X2StrategyGameRulesetDataStructures'.static.AddHours(NextAITick, 72);
+}
+
+
+function AdvanceMilitaryChecks ()
+{
+  local GlobalResistance_GameState_StrategyAsset Asset;
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local array<MilitaryStatus> AssetStatus, BlankStatus;
+  local MilitaryStatus Status;
+  local MilitaryRequirement Requirement;
+  local MilitaryNeed Need, BlankNeed;
+  /* local EconomicAvailability Availability, BlankAvailability; */
+  local StrategyAssetStructure StructureInstance;
+  local StrategyAssetSquad Squad;
+  local StrategyAssetStructureDefinition StructureDef;
+  /* local StrategyAssetProduction ProductionInstance; */
+  /* local StrategyAssetUpkeep UpkeepInstance; */
+  local XComGameStateHistory History;
+  local int StatusIx, FoundIx, NeedIx, AvailabilityIx;
+  local bool IsSurplus, IsDeficit;
+  History = `XCOMHISTORY;
+
+  foreach History.IterateByClassType(
+    class'GlobalResistance_GameState_StrategyAsset', Asset
+  )
+  {
+    if (Asset.Region.ObjectID != Region.ObjectID)
+    {
+      continue;
+    }
+
+    AssetStatus = BlankStatus;
+    Template = Asset.GetMyTemplate();
+
+    foreach Template.MilitaryRequirements(Requirement)
+    {
+      AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
+    }
+
+    foreach Asset.Structures(StructureInstance)
+    {
+      StructureDef = Template.GetStructureDefinition(StructureInstance.Type);
+      foreach StructureDef.DefensiveRequirements(Requirement)
+      {
+        AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
+      }
+    }
+
+    foreach Asset.Squads(Squad) {
+      AddMilitarySquadToStatus(Squad, AssetStatus);
+    }
+
+    `log("Military Status at Asset:" @ Asset.ObjectID);
+    foreach AssetStatus(Status, StatusIx)
+    {
+      `log("- " @ Status.Role @ Status.Quantity $ "/" $ Status.QuantityNeeded);
+    }
+
+    // see if we can satisfy needs directly from asset's reserves
+    //
+    // any remaining then get pushed onto military needs
+  }
+
+  /* `log("Economic Needs for RegionCommandAI" @ ObjectID); */
+  /* foreach MilitaryNeeds(Need) */
+  /* { */
+  /*   `log("NEED" @ Need.ItemTemplateName $ "x" $ Need.Quantity @ */
+  /*        "->" @ Need.AssetObjectID); */
+  /* } */
 }
 
 
@@ -345,6 +450,55 @@ function AddUpkeepToTrend(
 }
 
 
+function AddMilitaryRequirementToStatus(
+  MilitaryRequirement Requirement,
+  out array<MilitaryStatus> AssetStatus,
+  int AlertLevel
+)
+{
+  local MilitaryStatus Status;
+  local int StatusIx;
+
+  if (AlertLevel < Requirement.AlertLevel) { return; }
+
+  StatusIx = AssetStatus.Find('Role', Requirement.Role);
+
+  if (StatusIx == INDEX_NONE)
+  {
+    Status.QuantityNeeded = Requirement.Quantity;
+    Status.Role = Requirement.Role;
+    AssetStatus.AddItem(Status);
+  }
+  else
+  {
+    AssetStatus[StatusIx].QuantityNeeded += Requirement.Quantity;
+  }
+}
+
+
+function AddMilitarySquadToStatus(
+  StrategyAssetSquad Squad,
+  out array<MilitaryStatus> AssetStatus
+)
+{
+  local MilitaryStatus Status;
+  local int StatusIx;
+
+  StatusIx = AssetStatus.Find('Role', Squad.Role);
+
+  if (StatusIx == INDEX_NONE)
+  {
+    Status.Quantity = 1;
+    Status.Role = Squad.Role;
+    AssetStatus.AddItem(Status);
+  }
+  else
+  {
+    AssetStatus[StatusIx].Quantity += 1;
+  }
+}
+
+
 function AddProductionToTrend(
   StrategyAssetProduction Production,
   out array<EconomicTrend> Trends
@@ -423,6 +577,7 @@ function Update()
       )
     );
     NewAI.AdvanceEconomicChecks();
+    NewAI.AdvanceMilitaryChecks();
     NewAI.DispatchConvoys(NewGameState);
     NewAI.NextAITick = GetCurrentTime();
     class'X2StrategyGameRulesetDataStructures'.static.AddHours(NewAI.NextAITick, 72);

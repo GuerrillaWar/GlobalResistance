@@ -133,6 +133,9 @@
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyElement_DefaultStrategyAssets.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyManager.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\GlobalResistance\Classes\GlobalResistance_StrategyStart_AvatarAssets.uc">
       <SubType>Content</SubType>
     </Content>

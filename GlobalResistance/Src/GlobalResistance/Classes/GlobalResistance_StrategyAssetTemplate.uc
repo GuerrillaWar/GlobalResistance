@@ -105,6 +105,14 @@ struct StrategyAssetProductionDefinition
 };
 
 
+struct MilitaryRequirement
+{
+  var name Role;
+  var int Quantity;
+  var int AlertLevel;
+};
+
+
 struct StrategyAssetStructureDefinition
 {
   var name ID;
@@ -117,6 +125,7 @@ struct StrategyAssetStructureDefinition
   // ONGOING PARAMS
   var array<StrategyAssetProductionDefinition> Production;
   var array<StrategyAssetUpkeepDefinition> Upkeep;
+  var array<MilitaryRequirement> DefensiveRequirements;
 
   // STORAGE PARAMS
   var int UnitCapacity;
@@ -133,6 +142,7 @@ struct StrategyAssetTemplateDefinition
   var name ID;
   var array<StrategyAssetProductionDefinition> Production;
   var array<StrategyAssetUpkeepDefinition> Upkeep;
+  var array<MilitaryRequirement> MilitaryRequirements;
   var int UnitCapacity;
   var int InventoryCapacity;
 };
@@ -144,6 +154,7 @@ var int InventoryCapacity;
 var int UnitCapacity;
 var array<StrategyAssetUpkeepDefinition> Upkeep;
 var array<StrategyAssetProductionDefinition> Production;
+var array<MilitaryRequirement> MilitaryRequirements;
 
 var bool HasCoreStructure;
 var StrategyAssetStructureDefinition CoreStructure; // must be immediately built if this is assetCategory Buildable;

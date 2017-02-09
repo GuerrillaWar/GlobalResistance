@@ -1,9 +1,17 @@
 class GlobalResistance_DebugManager extends Object;
 
-var bool bStrategyShowEconomicStates;
-var bool bStrategyShowEconomicSignals;
-var bool bStrategyShowInventory;
-var bool bStrategyShowForces;
+
+enum StrategyDebugStatus
+{
+  eStrategyDebugStatus_None,
+  eStrategyDebugStatus_EconomicSignals,
+  eStrategyDebugStatus_MilitaryStates,
+  eStrategyDebugStatus_EconomicStates,
+  eStrategyDebugStatus_Inventory,
+  eStrategyDebugStatus_Forces,
+};
+
+var StrategyDebugStatus eStrategyAssetDebugState;
 
 static function GlobalResistance_DebugManager GetSingleton () {
   return GlobalResistance_DebugManager(
@@ -15,32 +23,60 @@ static function GlobalResistance_DebugManager GetSingleton () {
 
 function StrategyShowEconomicSignals()
 {
-	bStrategyShowEconomicSignals = !bStrategyShowEconomicSignals;
-	bStrategyShowEconomicStates = false;
-	bStrategyShowInventory = false;
-	bStrategyShowForces = false;
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_EconomicSignals)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_EconomicSignals;
+  }
+}
+
+function StrategyShowMilitaryStates()
+{
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_MilitaryStates)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_MilitaryStates;
+  }
 }
 
 function StrategyShowEconomicStates()
 {
-	bStrategyShowEconomicStates = !bStrategyShowEconomicStates;
-	bStrategyShowEconomicSignals = false;
-	bStrategyShowInventory = false;
-	bStrategyShowForces = false;
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_EconomicStates)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_EconomicStates;
+  }
 }
 
 function StrategyShowInventory()
 {
-	bStrategyShowEconomicStates = false;
-	bStrategyShowEconomicSignals = false;
-	bStrategyShowForces = false;
-	bStrategyShowInventory = !bStrategyShowInventory;
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_Inventory)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_Inventory;
+  }
 }
 
 function StrategyShowForces()
 {
-	bStrategyShowEconomicSignals = false;
-	bStrategyShowEconomicStates = false;
-	bStrategyShowInventory = false;
-	bStrategyShowForces = !bStrategyShowForces;
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_Forces)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_Forces;
+  }
 }

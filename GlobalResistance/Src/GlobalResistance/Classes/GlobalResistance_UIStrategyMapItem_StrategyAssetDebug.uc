@@ -43,7 +43,7 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
   AssetDesc = "";
 
   if (
-    class'GlobalResistance_DebugManager'.static.GetSingleton().bStrategyShowEconomicStates
+    class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_EconomicStates
   )
   {
     foreach Asset.Upkeep(UpkeepInstance)
@@ -88,7 +88,7 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
     }
   }
   else if (
-    class'GlobalResistance_DebugManager'.static.GetSingleton().bStrategyShowInventory
+    class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_Inventory
   )
   {
     foreach Asset.Inventory(ItemRef)
@@ -99,7 +99,23 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
     }
   }
   else if (
-    class'GlobalResistance_DebugManager'.static.GetSingleton().bStrategyShowEconomicSignals
+    class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_MilitaryStates
+  )
+  {
+    /* arrNeeds = Asset.GetRegionAI().GetEconomicNeedsForAssetID(Asset.ObjectID); */
+    /* arrAvailabilities = Asset.GetRegionAI().GetEconomicAvailabilitiesForAssetID(Asset.ObjectID); */
+
+    /* if (arrNeeds.Length > 0) */
+    /* { */
+    /*   AssetDesc = AssetDesc $ "NEEDS:\n"; */
+    /*   foreach arrNeeds(Need) */
+    /*   { */
+    /*     AssetDesc = AssetDesc $ Need.ItemTemplateName @ Need.QuantityDispatched $ "/" $ Need.Quantity $ "\n"; */
+    /*   } */
+    /* } */
+  }
+  else if (
+    class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_EconomicSignals
   )
   {
     arrNeeds = Asset.GetRegionAI().GetEconomicNeedsForAssetID(Asset.ObjectID);

@@ -7,8 +7,6 @@ var Vector MouseWorldOrigin, MouseWorldDirection;
 simulated function InitScreen(XComPlayerController InitController, UIMovie InitMovie, optional name InitName)
 {
 	super.InitScreen(InitController, InitMovie, InitName);
-  mSimpleShapeManager = Spawn(class'SimpleShapeManager');
-
   // needed to register PostRenderFor
   AddHUDOverlayActor();
 }
