@@ -1,6 +1,9 @@
 class GlobalResistance_GameState_StrategyAsset
 extends XComGameState_GeoscapeEntity
-dependson(GlobalResistance_StrategyAssetTemplate);
+dependson(
+  GlobalResistance_StrategyAssetTemplate,
+  GlobalResistance_StrategyManager
+);
 
 
 struct AssetSearchNode
@@ -50,6 +53,7 @@ var array<StrategyAssetStructure> Structures;
 
 var array<StrategyAssetSquad> Squads;
 var array<GenericUnitCount> Reserves;
+var array<StateObjectReference> UniqueReserves;
 var array<RecoveringGenericUnit> RecoveringReserves;
 
 var array<StateObjectReference> Inventory;
@@ -94,8 +98,6 @@ function AddStructureOfType(name StructureType)
 {
   local StrategyAssetStructure Structure;
 
-  /* Template = GetMyTemplate(); */
-
   Structure.Type = StructureType;
   Structure.BuildHoursRemaining = 0;
   Structures.AddItem(Structure);
@@ -103,6 +105,240 @@ function AddStructureOfType(name StructureType)
   CalculateUpkeep();
   UpdateNextEconomyTick();
 }
+
+//----------------------------------------------------------------------------
+// MILITARY MANAGEMENT
+//----------------------------------------------------------------------------
+
+function bool PutUnitCountInReserves(GenericUnitCount UnitCount)
+{
+  local int UnitCountIndex;
+
+  UnitCountIndex = Reserves.Find(
+    'CharacterTemplate', UnitCount.CharacterTemplate
+  );
+
+  if (UnitCountIndex != INDEX_NONE)
+  {
+    Reserves[UnitCountIndex].Count += UnitCount.Count;
+  }
+  else
+  {
+    Reserves.AddItem(UnitCount);
+  }
+  return true;
+}
+
+function bool DeductFromReserves(name TemplateName, int Count)
+{
+  local int UnitCountIndex;
+
+  UnitCountIndex = Reserves.Find('CharacterTemplate', TemplateName);
+
+  if (UnitCountIndex != INDEX_NONE)
+  {
+    Reserves[UnitCountIndex].Count -= Count;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function bool CanBuildSquadDefinitionFromReserves(SquadDefinition SquadDef)
+{
+  local SquadMemberDefinition MemberDef, NeededMemberDef;
+  local array<SquadMemberDefinition> NeededMemberDefs;
+  local int ExistingNeedIx;
+
+  NeededMemberDefs.AddItem(SquadDef.Leader);
+
+  foreach SquadDef.Followers(MemberDef)
+  {
+    if (MemberDef.TemplateName != '')
+    {
+      ExistingNeedIx = NeededMemberDefs.Find('TemplateName', MemberDef.TemplateName);
+      if (ExistingNeedIx != INDEX_NONE)
+      {
+        NeededMemberDefs[ExistingNeedIx].Count += MemberDef.Count;
+      }
+      else
+      {
+        NeededMemberDefs.AddItem(MemberDef);
+      }
+    }
+    else
+    {
+      ExistingNeedIx = NeededMemberDefs.Find('GroupName', MemberDef.GroupName);
+      if (ExistingNeedIx != INDEX_NONE)
+      {
+        NeededMemberDefs[ExistingNeedIx].Count += MemberDef.Count;
+      }
+      else
+      {
+        NeededMemberDefs.AddItem(MemberDef);
+      }
+    }
+  }
+
+  foreach NeededMemberDefs(NeededMemberDef)
+  {
+    if (NeededMemberDef.TemplateName != '')
+    {
+      if (
+        CountReservesFromTemplateName(NeededMemberDef.TemplateName) <
+        NeededMemberDef.Count
+      )
+      {
+        `log("Cannot satisfy " @ NeededMemberDef.TemplateName $ "x" $ NeededMemberDef.Count);
+        return false;
+      }
+    }
+    else
+    {
+      if (
+        CountReservesFromGroupName(NeededMemberDef.GroupName) <
+        NeededMemberDef.Count
+      )
+      {
+        `log("Cannot satisfy " @ NeededMemberDef.GroupName $ "x" $ NeededMemberDef.Count);
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+
+function BuildSquadDefinitionFromReserves(SquadDefinition SquadDef, name Role)
+{
+  local StrategyAssetSquad Squad;
+  local GenericUnitCount ReserveCount, SquadCount;
+  local SquadMemberDefinition MemberDef;
+  local int UnitIx;
+
+  Squad.SquadType = SquadDef.ID;
+  Squad.Role = Role;
+
+  if (SquadDef.Leader.GroupName != '')
+  {
+    ReserveCount = FindReservesForGroupName(SquadDef.Leader.GroupName);
+  }
+  else
+  {
+    ReserveCount = FindReservesForTemplateName(SquadDef.Leader.TemplateName);
+  }
+
+  DeductFromReserves(ReserveCount.CharacterTemplate, MemberDef.Count);
+  SquadCount.CharacterTemplate = ReserveCount.CharacterTemplate;
+  SquadCount.Count = SquadDef.Leader.Count;
+  Squad.GenericUnits.AddItem(SquadCount);
+
+  foreach SquadDef.Followers(MemberDef)
+  {
+    if (MemberDef.TemplateName != '')
+    {
+      ReserveCount = FindReservesForGroupName(MemberDef.GroupName);
+    }
+    else
+    {
+      ReserveCount = FindReservesForTemplateName(MemberDef.TemplateName);
+    }
+
+    UnitIx = Squad.GenericUnits.Find('CharacterTemplate', ReserveCount.CharacterTemplate);
+    DeductFromReserves(ReserveCount.CharacterTemplate, MemberDef.Count);
+    if (UnitIx != INDEX_NONE)
+    {
+      Squad.GenericUnits[UnitIx].Count += MemberDef.Count;
+    }
+    else
+    {
+      SquadCount.CharacterTemplate = ReserveCount.CharacterTemplate;
+      SquadCount.Count = MemberDef.Count;
+      Squad.GenericUnits.AddItem(SquadCount);
+    }
+  }
+
+  `log("Added Squad:" @ Squad.SquadType);
+  Squads.AddItem(Squad);
+}
+
+
+function GenericUnitCount FindReservesForGroupName(name GroupName)
+{
+  local X2CharacterTemplateManager Manager;
+  local GenericUnitCount UnitCount;
+  local X2CharacterTemplate Template;
+
+  Manager = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
+
+  foreach Reserves(UnitCount)
+  {
+    Template = Manager.FindCharacterTemplate(UnitCount.CharacterTemplate);
+    if (Template.CharacterGroupName == GroupName)
+    {
+      return UnitCount;
+    }
+  }
+}
+
+
+function int CountReservesFromGroupName(name GroupName)
+{
+  local X2CharacterTemplateManager Manager;
+  local GenericUnitCount UnitCount;
+  local X2CharacterTemplate Template;
+  local int Count;
+
+  Count = 0;
+  Manager = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
+
+  foreach Reserves(UnitCount)
+  {
+    Template = Manager.FindCharacterTemplate(UnitCount.CharacterTemplate);
+    `log("GroupCheck[" $ GroupName $ "] - " @ UnitCount.CharacterTemplate @ "of" @ Template.CharacterGroupName @ ":" @ UnitCount.Count);
+    if (Template.CharacterGroupName == GroupName)
+    {
+      Count += UnitCount.Count;
+    }
+  }
+  `log("Counting" @ GroupName @ "at" @ Count);
+
+  return Count;
+}
+
+function int CountReservesFromTemplateName(name Template)
+{
+  local int UnitCountIndex;
+
+  UnitCountIndex = Reserves.Find('CharacterTemplate', Template);
+  
+  if (UnitCountIndex != INDEX_NONE)
+  {
+    return Reserves[UnitCountIndex].Count;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+
+function GenericUnitCount FindReservesForTemplateName(name Template)
+{
+  local int UnitCountIndex;
+
+  UnitCountIndex = Reserves.Find('CharacterTemplate', Template);
+  
+  if (UnitCountIndex != INDEX_NONE)
+  {
+    return Reserves[UnitCountIndex];
+  }
+}
+
+
 
 
 //---------------------------------------------------------------------------------------

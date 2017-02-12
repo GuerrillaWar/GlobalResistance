@@ -1,6 +1,7 @@
 class GlobalResistance_GameState_RegionCommandAI
 extends XComGameState_BaseObject
 dependson(GlobalResistance_StrategyAssetTemplate,
+          GlobalResistance_StrategyManager,
           GlobalResistance_GameState_StrategyAsset);
 
 
@@ -98,16 +99,17 @@ function AdvanceMilitaryChecks ()
   local MilitaryStatus Status;
   local MilitaryRequirement Requirement;
   local MilitaryNeed Need, BlankNeed;
-  /* local EconomicAvailability Availability, BlankAvailability; */
   local StrategyAssetStructure StructureInstance;
   local StrategyAssetSquad Squad;
+  local GlobalResistance_StrategyManager StrategyManager;
+  local array<SquadDefinition> ValidSquadDefs;
+  local SquadDefinition SquadDef;
   local StrategyAssetStructureDefinition StructureDef;
-  /* local StrategyAssetProduction ProductionInstance; */
-  /* local StrategyAssetUpkeep UpkeepInstance; */
   local XComGameStateHistory History;
   local int StatusIx, FoundIx, NeedIx, AvailabilityIx;
-  local bool IsSurplus, IsDeficit;
+  local bool IsSurplus, IsDeficit, AbleToCreate;
   History = `XCOMHISTORY;
+  StrategyManager = class'GlobalResistance_StrategyManager'.static.GetSingleton();
 
   foreach History.IterateByClassType(
     class'GlobalResistance_GameState_StrategyAsset', Asset
@@ -143,7 +145,34 @@ function AdvanceMilitaryChecks ()
     foreach AssetStatus(Status, StatusIx)
     {
       `log("- " @ Status.Role @ Status.Quantity $ "/" $ Status.QuantityNeeded);
+
+      AbleToCreate = true;
+
+      while (AbleToCreate && Status.Quantity < Status.QuantityNeeded)
+      {
+        ValidSquadDefs = StrategyManager.GetSquadDefinitionsForRole(Status.Role);
+        foreach ValidSquadDefs(SquadDef)
+        {
+          if (Asset.CanBuildSquadDefinitionFromReserves(SquadDef))
+          {
+            `log("Can build" @ SquadDef.ID @ "squad locally");
+            Asset.BuildSquadDefinitionFromReserves(SquadDef, Status.Role);
+            Status.Quantity += 1;
+            AbleToCreate = true;
+            break;
+          }
+          else
+          {
+            AbleToCreate = false;
+          }
+        }
+      }
+
+      `log("- " @ Status.Role @ Status.Quantity $ "/" $ Status.QuantityNeeded);
+      AssetStatus[StatusIx].Quantity = Status.Quantity;
     }
+
+    // can build squad, if can build squad
 
     // see if we can satisfy needs directly from asset's reserves
     //

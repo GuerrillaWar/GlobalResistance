@@ -8,6 +8,12 @@ struct SquadMemberDefinition
   var name GroupName;
   // loadout name optional, assume default if not specified
   var name LoadoutName;
+  var int Count;
+
+  structdefaultproperties
+  {
+    Count=1;
+  }
 };
 
 struct SquadDefinition
@@ -30,3 +36,19 @@ static function GlobalResistance_StrategyManager GetSingleton () {
   );
 }
 
+
+function array<SquadDefinition> GetSquadDefinitionsForRole(name Role)
+{
+  local array<SquadDefinition> ValidDefs;
+  local SquadDefinition SquadDef;
+
+  foreach default.arrSquadDefinitions(SquadDef)
+  {
+    if (SquadDef.Roles.Find(Role) != INDEX_NONE)
+    {
+      ValidDefs.AddItem(SquadDef);
+    }
+  }
+
+  return ValidDefs;
+}

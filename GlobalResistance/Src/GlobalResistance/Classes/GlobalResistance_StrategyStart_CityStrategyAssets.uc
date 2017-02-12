@@ -1,6 +1,7 @@
 // This is an Unreal Script
 class GlobalResistance_StrategyStart_CityStrategyAssets extends Object
-  config(GameBoard);
+  config(GameBoard)
+  dependson(GlobalResistance_GameState_StrategyAsset);
 
 struct GlobalResistance_Road
 {
@@ -20,7 +21,17 @@ struct RoadNodeRef
   var GlobalResistance_GameState_StrategyAsset Asset;
 };
 
+struct GR_CityInitState
+{
+  var array<name> Structures;
+  var array<ArtifactCost> Inventory;
+  var array<GenericUnitCount> Reserves;
+};
+
 var const config array<GlobalResistance_Road> arrRoads;
+var const config array<GR_CityInitState> arrCapitalInitStates;
+var const config array<GR_CityInitState> arrSlumInitStates;
+
 
 static function X2StrategyElementTemplateManager GetMyTemplateManager()
 {
@@ -41,6 +52,12 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
   local GlobalResistance_GameState_StrategyAsset RoadFrom;
   local GlobalResistance_GameState_StrategyAsset RoadTo;
   local array<RoadNodeRef> RoadNodes;
+
+	local int InitIndex;
+	local GR_CityInitState CityInitState;
+	local ArtifactCost InitCost;
+	local GenericUnitCount InitUnitCount;
+	local name InitStructureName;
 
   //Picking random cities
   local int CityIterations;  
@@ -110,19 +127,27 @@ static function SetUpCityControlZones(XComGameState StartState, optional bool bT
     CCZ.Continent = RegionState.GetContinent().GetReference();
 
     if (IsCapital) {
-      CCZ.AddStructureOfType('GeneClinic');
-      CCZ.AddStructureOfType('GeneClinic');
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('SupplyCentre');
+			InitIndex = `SYNC_RAND_STATIC(default.arrCapitalInitStates.Length);
+			CityInitState = default.arrCapitalInitStates[InitIndex];
     } else {
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('SupplyCentre');
-      CCZ.AddStructureOfType('Farm');
-      CCZ.AddStructureOfType('Farm');
+			InitIndex = `SYNC_RAND_STATIC(default.arrSlumInitStates.Length);
+			CityInitState = default.arrSlumInitStates[InitIndex];
     }
+
+		foreach CityInitState.Structures(InitStructureName)
+		{
+      CCZ.AddStructureOfType(InitStructureName);
+		}
+
+		foreach CityInitState.Inventory(InitCost)
+		{
+			CCZ.PutCostInInventory(StartState, InitCost);
+		}
+
+		foreach CityInitState.Reserves(InitUnitCount)
+		{
+			CCZ.PutUnitCountInReserves(InitUnitCount);
+		}
 
     StartState.AddStateObject(CCZ);
     `log("Added City: " @ CCZ.GetCityDisplayName());

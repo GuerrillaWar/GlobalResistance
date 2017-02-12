@@ -32,6 +32,7 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
   local string AssetDesc;
   local array<EconomicNeed> arrNeeds;
   local EconomicNeed Need;
+  local GenericUnitCount UnitCount;
   local array<EconomicAvailability> arrAvailabilities;
   local EconomicAvailability Availability;
 
@@ -102,17 +103,11 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
     class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_MilitaryStates
   )
   {
-    /* arrNeeds = Asset.GetRegionAI().GetEconomicNeedsForAssetID(Asset.ObjectID); */
-    /* arrAvailabilities = Asset.GetRegionAI().GetEconomicAvailabilitiesForAssetID(Asset.ObjectID); */
-
-    /* if (arrNeeds.Length > 0) */
-    /* { */
-    /*   AssetDesc = AssetDesc $ "NEEDS:\n"; */
-    /*   foreach arrNeeds(Need) */
-    /*   { */
-    /*     AssetDesc = AssetDesc $ Need.ItemTemplateName @ Need.QuantityDispatched $ "/" $ Need.Quantity $ "\n"; */
-    /*   } */
-    /* } */
+    foreach Asset.Reserves(UnitCount)
+    {
+      AssetDesc = AssetDesc $
+        UnitCount.CharacterTemplate @ "-" @ UnitCount.Count $ "\n";
+    }
   }
   else if (
     class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_EconomicSignals
