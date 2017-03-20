@@ -120,26 +120,8 @@ function AdvanceMilitaryChecks ()
       continue;
     }
 
-    AssetStatus = BlankStatus;
+    AssetStatus = GetMilitaryStatusOfAsset(Asset);
     Template = Asset.GetMyTemplate();
-
-    foreach Template.MilitaryRequirements(Requirement)
-    {
-      AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
-    }
-
-    foreach Asset.Structures(StructureInstance)
-    {
-      StructureDef = Template.GetStructureDefinition(StructureInstance.Type);
-      foreach StructureDef.DefensiveRequirements(Requirement)
-      {
-        AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
-      }
-    }
-
-    foreach Asset.Squads(Squad) {
-      AddMilitarySquadToStatus(Squad, AssetStatus);
-    }
 
     `log("Military Status at Asset:" @ Asset.ObjectID);
     foreach AssetStatus(Status, StatusIx)
@@ -477,6 +459,45 @@ function AddUpkeepToTrend(
     }
   }
 }
+
+
+function array<MilitaryStatus> GetMilitaryStatusOfAsset(
+  GlobalResistance_GameState_StrategyAsset Asset
+)
+{
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local array<MilitaryStatus> AssetStatus, BlankStatus;
+  local MilitaryStatus Status;
+  local MilitaryRequirement Requirement;
+  local MilitaryNeed Need, BlankNeed;
+  local StrategyAssetStructure StructureInstance;
+  local StrategyAssetStructureDefinition StructureDef;
+  local StrategyAssetSquad Squad;
+
+  Template = Asset.GetMyTemplate();
+
+  foreach Template.MilitaryRequirements(Requirement)
+  {
+    AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
+  }
+
+  foreach Asset.Structures(StructureInstance)
+  {
+    StructureDef = Template.GetStructureDefinition(StructureInstance.Type);
+    foreach StructureDef.DefensiveRequirements(Requirement)
+    {
+      AddMilitaryRequirementToStatus(Requirement, AssetStatus, 1);
+    }
+  }
+
+  foreach Asset.Squads(Squad) {
+    AddMilitarySquadToStatus(Squad, AssetStatus);
+  }
+
+  return AssetStatus;
+}
+
+
 
 
 function AddMilitaryRequirementToStatus(

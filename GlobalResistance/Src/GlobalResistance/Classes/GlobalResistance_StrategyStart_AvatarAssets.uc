@@ -1,5 +1,17 @@
 // This is an Unreal Script
-class GlobalResistance_StrategyStart_AvatarAssets extends Object;
+class GlobalResistance_StrategyStart_AvatarAssets extends Object
+  config(GameBoard)
+  dependson(GlobalResistance_GameState_StrategyAsset);
+
+struct GR_AdventInitState
+{
+  var name AssetName;
+  var array<name> Structures;
+  var array<ArtifactCost> Inventory;
+  var array<GenericUnitCount> Reserves;
+};
+
+var const config array<GR_AdventInitState> arrAdventInitStates;
 
 
 static function X2StrategyElementTemplateManager GetMyTemplateManager()
@@ -33,6 +45,12 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
   XComGameState_WorldRegion RegionState
 ) {
   local GlobalResistance_GameState_StrategyAsset Asset;
+  local array<GR_AdventInitState> CandidateInitStates;
+  local GR_AdventInitState IterInitState, InitState;
+	local int InitIndex;
+	local ArtifactCost InitCost;
+	local GenericUnitCount InitUnitCount;
+	local name InitStructureName;
 
 
   `log("BUILDING" @ AssetName @ "at" @ RegionState.GetMyTemplateName());
@@ -44,9 +62,31 @@ static function GlobalResistance_GameState_StrategyAsset AddStrategyAssetToRegio
   Asset.SetToRandomLocationInRegion(RegionState);
   `log("Location:" @ Asset.Location);
 
-  AddSquadToAsset(Asset);
-  AddSquadToAsset(Asset);
-  AddSquadToAsset(Asset);
+  foreach default.arrAdventInitStates(IterInitState)
+  {
+    if (IterInitState.AssetName == AssetName)
+    {
+      CandidateInitStates.AddItem(IterInitState);
+    }
+  }
+
+  InitIndex = `SYNC_RAND_STATIC(CandidateInitStates.Length);
+  InitState = CandidateInitStates[InitIndex];
+
+  foreach InitState.Structures(InitStructureName)
+  {
+    Asset.AddStructureOfType(InitStructureName);
+  }
+
+  foreach InitState.Inventory(InitCost)
+  {
+    Asset.PutCostInInventory(StartState, InitCost);
+  }
+
+  foreach InitState.Reserves(InitUnitCount)
+  {
+    Asset.PutUnitCountInReserves(InitUnitCount);
+  }
 
   StartState.AddStateObject(Asset);
   return Asset;

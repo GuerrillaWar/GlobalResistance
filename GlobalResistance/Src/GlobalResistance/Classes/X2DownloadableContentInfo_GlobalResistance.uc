@@ -19,6 +19,11 @@ exec function StrategyShowMilitaryStates()
   class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowMilitaryStates();
 }
 
+exec function StrategyShowSquadDeployments()
+{
+  class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowSquadDeployments();
+}
+
 exec function StrategyShowEconomicStates()
 {
   class'GlobalResistance_DebugManager'.static.GetSingleton().StrategyShowEconomicStates();

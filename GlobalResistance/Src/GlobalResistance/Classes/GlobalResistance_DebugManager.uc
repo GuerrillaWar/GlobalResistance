@@ -6,6 +6,7 @@ enum StrategyDebugStatus
   eStrategyDebugStatus_None,
   eStrategyDebugStatus_EconomicSignals,
   eStrategyDebugStatus_MilitaryStates,
+  eStrategyDebugStatus_SquadDeployments,
   eStrategyDebugStatus_EconomicStates,
   eStrategyDebugStatus_Inventory,
   eStrategyDebugStatus_Forces,
@@ -30,6 +31,18 @@ function StrategyShowEconomicSignals()
   else
   {
     eStrategyAssetDebugState = eStrategyDebugStatus_EconomicSignals;
+  }
+}
+
+function StrategyShowSquadDeployments()
+{
+	if (eStrategyAssetDebugState == eStrategyDebugStatus_SquadDeployments)
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_None;
+  }
+  else
+  {
+    eStrategyAssetDebugState = eStrategyDebugStatus_SquadDeployments;
   }
 }
 

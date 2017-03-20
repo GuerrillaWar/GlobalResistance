@@ -8,7 +8,7 @@ config(GameData);
 // #######################################################################################
 
 //---------------------------------------------------------------------------------------
-function int GetCurrentDoom(optional bool bIgnorePending = false)
+function int GetCurrentDoom(optional bool bIgnorePending = false, optional bool bIncludeUnavailable = false)
 {
   local XComGameStateHistory History;
   local GlobalResistance_GameState_AvatarFacilityStrategyAsset AvatarFacility;

@@ -1,5 +1,11 @@
 class GlobalResistance_UIStrategyMapItem_StrategyAssetDebug extends UIStrategyMapItem;
 
+struct DebugSquadCount
+{
+  var name SquadType;
+  var int Count;
+};
+
 var UIText InfoText;
 
 simulated function UIStrategyMapItem InitMapItem(out XComGameState_GeoscapeEntity Entity)
@@ -25,6 +31,14 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
   local StrategyAssetStructure StructureInstance;
   local StrategyAssetProduction ProductionInstance;
   local StrategyAssetUpkeep UpkeepInstance;
+
+  local array<MilitaryStatus> MilitaryStatusList;
+  local MilitaryStatus MilitaryStatus;
+  local StrategyAssetSquad Squad;
+  local array<DebugSquadCount> SquadCounts;
+  local int SquadCountIx;
+
+  local DebugSquadCount SquadCount;
   local StrategyAssetUpkeepPenalty PenaltyInstance;
   local StateObjectReference ItemRef;
   local XComGameState_Item Item;
@@ -132,6 +146,36 @@ function UpdateFromGeoscapeEntity(const out XComGameState_GeoscapeEntity Geoscap
       {
         AssetDesc = AssetDesc $ Availability.ItemTemplateName @ Availability.Quantity $ "\n";
       }
+    }
+  }
+  else if (
+    class'GlobalResistance_DebugManager'.static.GetSingleton().eStrategyAssetDebugState == eStrategyDebugStatus_SquadDeployments
+  )
+  {
+    foreach Asset.Squads(Squad)
+    {
+      SquadCountIx = SquadCounts.Find('SquadType', Squad.SquadType);
+      if (SquadCountIx == INDEX_NONE)
+      {
+        SquadCount.SquadType = Squad.SquadType;
+        SquadCount.Count = 1;
+        SquadCounts.AddItem(SquadCount);
+      }
+      else
+      {
+        SquadCounts[SquadCountIx].Count += 1;
+      }
+    }
+
+    MilitaryStatusList = Asset.GetRegionAI().GetMilitaryStatusOfAsset(Asset);
+    foreach MilitaryStatusList(MilitaryStatus)
+    {
+      AssetDesc = AssetDesc $ MilitaryStatus.Role @ MilitaryStatus.Quantity $ "/" $ MilitaryStatus.QuantityNeeded $ "\n";
+    }
+
+    foreach SquadCounts(SquadCount)
+    {
+      AssetDesc = AssetDesc $ SquadCount.SquadType @ "x" @ SquadCount.Count $ "\n";
     }
   }
 
