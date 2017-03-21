@@ -54,6 +54,11 @@ simulated state CreateTacticalGame
         )
       );
       VanguardSquads = StrategyAsset.GetInitialSquads(MissionSiteState, BattleData);
+      `log("Collected squads from strategy asset");
+    }
+    else
+    {
+      `log("No strategy asset found for Squads");
     }
 
     Offset = 0;
@@ -62,8 +67,7 @@ simulated state CreateTacticalGame
       BattleData.MapData.ObjectiveLocation,
       VanguardSquads.Length
     );
-    DropLocation = ObjectiveLocation;
-    DropLocation.X = DropLocation.X + Offset;
+    `log("Preparing " @ VanguardSquads.Length @ "Squads for Deploy");
 
     foreach VanguardSquads(Squad)
     {

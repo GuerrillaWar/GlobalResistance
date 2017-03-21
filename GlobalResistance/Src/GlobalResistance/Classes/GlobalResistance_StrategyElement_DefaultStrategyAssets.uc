@@ -160,7 +160,10 @@ static function X2DataTemplate CreateAvatarFacility()
   Template.DefaultTeam = eTeam_Alien;
   Template.InventoryCapacity = 1000;
   Template.UnitCapacity = 40;
-  Template.HasCoreStructure = false;
+  Template.HasCoreStructure = true;
+  ApplyTemplateDefinition('AvatarFacility', Template);
+  Template.CoreStructure = GetStructureDefinition('AvatarFacility');
+  Template.AllowedStructures.AddItem(GetStructureDefinition('AvatarFacility'));
   Template.GameStateClass = class'GlobalResistance_GameState_AvatarFacilityStrategyAsset';
   Template.StrategyUIClass = class'GlobalResistance_UIStrategyAsset_AvatarFacility';
   Template.PlotTypes.AddItem('Wilderness');

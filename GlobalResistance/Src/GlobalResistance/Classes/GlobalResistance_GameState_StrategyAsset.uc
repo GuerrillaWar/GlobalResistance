@@ -221,6 +221,7 @@ function BuildSquadDefinitionFromReserves(SquadDefinition SquadDef, name Role)
 
   Squad.SquadType = SquadDef.ID;
   Squad.Role = Role;
+  `log("Adding Squad:" @ Squad.SquadType);
 
   if (SquadDef.Leader.GroupName != '')
   {
@@ -234,29 +235,34 @@ function BuildSquadDefinitionFromReserves(SquadDefinition SquadDef, name Role)
   DeductFromReserves(ReserveCount.CharacterTemplate, MemberDef.Count);
   SquadCount.CharacterTemplate = ReserveCount.CharacterTemplate;
   SquadCount.Count = SquadDef.Leader.Count;
+  `log("Adding Leader:" @ SquadCount.CharacterTemplate @ 'x' @ SquadCount.Count);
   Squad.GenericUnits.AddItem(SquadCount);
 
   foreach SquadDef.Followers(MemberDef)
   {
     if (MemberDef.TemplateName != '')
     {
-      ReserveCount = FindReservesForGroupName(MemberDef.GroupName);
+      ReserveCount = FindReservesForTemplateName(MemberDef.TemplateName);
     }
     else
     {
-      ReserveCount = FindReservesForTemplateName(MemberDef.TemplateName);
+      ReserveCount = FindReservesForGroupName(MemberDef.GroupName);
     }
+
+    `log("Got Reserves from " @ ReserveCount.CharacterTemplate);
 
     UnitIx = Squad.GenericUnits.Find('CharacterTemplate', ReserveCount.CharacterTemplate);
     DeductFromReserves(ReserveCount.CharacterTemplate, MemberDef.Count);
     if (UnitIx != INDEX_NONE)
     {
       Squad.GenericUnits[UnitIx].Count += MemberDef.Count;
+      `log("Incrementing Follower:" @ Squad.GenericUnits[UnitIx].CharacterTemplate @ 'x' @ Squad.GenericUnits[UnitIx].Count);
     }
     else
     {
       SquadCount.CharacterTemplate = ReserveCount.CharacterTemplate;
       SquadCount.Count = MemberDef.Count;
+      `log("Adding Follower:" @ SquadCount.CharacterTemplate @ 'x' @ SquadCount.Count);
       Squad.GenericUnits.AddItem(SquadCount);
     }
   }
@@ -935,6 +941,7 @@ function Array<StrategyAssetSquad> GetInitialSquads(
   GlobalResistance_GameState_MissionSite MissionSite,
   XComGameState_BattleData BattleData
 ) {
+  `log("Found" @ Squads.Length @ "squads for deployment");
   return Squads;
 }
 
