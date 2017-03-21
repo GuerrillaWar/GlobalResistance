@@ -75,6 +75,56 @@ function GlobalResistance_GameState_MissionSite GenerateMonumentMission()
 }
 
 
+function Array<StrategyAssetSquad> GetInitialSquads(
+  GlobalResistance_GameState_MissionSite MissionSite,
+  XComGameState_BattleData BattleData
+) {
+  local int OnSiteSquadCap;
+  local StrategyAssetSquad CandidateSquad, IterSquad;
+  local Array<StrategyAssetSquad> InitSquads, SquadPool;
+  local GlobalResistance_StrategyAssetTemplate Template;
+  local MilitaryRequirement Requirement;
+  local StrategyAssetStructureDefinition StructureDef;
+
+  SquadPool = Squads;
+
+  if (m_TemplateName == 'StrategyAsset_CityControlZone')
+  {
+    OnSiteSquadCap = Round(Squads.Length / (4 + Structures.Length));
+  }
+  else
+  {
+    OnSiteSquadCap = Round(Squads.Length / (3 + Structures.Length));
+  }
+
+  if (MissionSite.Source == 'MissionSource_SabotageCCZGeneClinic')
+  {
+    StructureDef = Template.GetStructureDefinition('GeneClinic');
+    foreach StructureDef.DefensiveRequirements(Requirement)
+    {
+      if (BattleData.m_iAlertLevel >= Requirement.AlertLevel)
+      {
+        CandidateSquad = GetRandomSquadForRole(SquadPool, Requirement.Role);
+        if (CandidateSquad.Role != '' && InitSquads.Length < OnSiteSquadCap)
+        {
+          InitSquads.AddItem(CandidateSquad);
+          SquadPool.RemoveItem(CandidateSquad);
+        }
+      }
+    }
+  }
+
+  // populate pool with remaining squads
+  while (InitSquads.Length < OnSiteSquadCap && SquadPool.Length > 0)
+  {
+    CandidateSquad = SquadPool[`SYNC_RAND_STATIC(SquadPool.Length)];
+    InitSquads.AddItem(CandidateSquad);
+    SquadPool.RemoveItem(CandidateSquad);
+  }
+
+  return InitSquads;
+}
+
 
 function Array<GlobalResistance_GameState_CityStrategyAsset> GetOtherCities (
   XComGameState GameState

@@ -26,9 +26,11 @@ static function SpawnSquad(StrategyAssetSquad Squad, Vector Location, XComGameSt
     )
   );
   `log("BattleAI Data ID" @ XGAIPlayer(`BATTLE.GetAIPlayer()).GetAIDataID());
+  `log("Spawning Squad:" @ Squad.SquadType @ "-" @ Squad.Role);
 
   foreach Squad.GenericUnits(UnitCount)
   {
+    `log("Spawning UnitCount:" @ UnitCount.CharacterTemplate @ "x" @ UnitCount.Count);
     for (Ix = 0; Ix < UnitCount.Count; Ix++)
     {
       CandidateValid = false;
@@ -41,28 +43,31 @@ static function SpawnSquad(StrategyAssetSquad Squad, Vector Location, XComGameSt
         CandidateCursor++;
       }
 
-      `log("Spawning " @ UnitCount.CharacterTemplate @ ", At:" @ PosCandidate.WorldPos);
-      UnitRef = SpawnManager.CreateUnit(
-        PosCandidate.WorldPos, UnitCount.CharacterTemplate,
-        eTeam_Alien, bAddToStartState, false, GameState
-      );
-      `log("Built Unit" @ UnitRef.ObjectID);
-      `log("Has Unit:" @ GameState.GetGameStateForObjectID(UnitRef.ObjectID));
-      WorldData.SetTileBlockedByUnitFlag(XComGameState_Unit(
-        GameState.GetGameStateForObjectID(UnitRef.ObjectID)
-      ));
-
-      if (AIGroup.ObjectID == 0)
+      if (UnitCount.CharacterTemplate != 'None')
       {
-        AIGroup = XComGameState_Unit(
+        `log("Spawning " @ UnitCount.CharacterTemplate @ ", At:" @ PosCandidate.WorldPos);
+        UnitRef = SpawnManager.CreateUnit(
+          PosCandidate.WorldPos, UnitCount.CharacterTemplate,
+          eTeam_Alien, bAddToStartState, false, GameState
+        );
+        `log("Built Unit" @ UnitRef.ObjectID);
+        `log("Has Unit:" @ GameState.GetGameStateForObjectID(UnitRef.ObjectID));
+        WorldData.SetTileBlockedByUnitFlag(XComGameState_Unit(
           GameState.GetGameStateForObjectID(UnitRef.ObjectID)
-        ).GetGroupMembership(GameState);
-        `log("Getting group" @ AIGroup.ObjectID);
-      }
-      else
-      {
-        kAIData.TransferUnitToGroup(AIGroup.GetReference(), UnitRef, GameState);
-        `log("Transferring to group" @ AIGroup.ObjectID);
+        ));
+
+        if (AIGroup.ObjectID == 0)
+        {
+          AIGroup = XComGameState_Unit(
+            GameState.GetGameStateForObjectID(UnitRef.ObjectID)
+          ).GetGroupMembership(GameState);
+          `log("Getting group" @ AIGroup.ObjectID);
+        }
+        else
+        {
+          kAIData.TransferUnitToGroup(AIGroup.GetReference(), UnitRef, GameState);
+          `log("Transferring to group" @ AIGroup.ObjectID);
+        }
       }
     }
   }

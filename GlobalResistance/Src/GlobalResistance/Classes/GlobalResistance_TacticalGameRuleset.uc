@@ -11,8 +11,11 @@ simulated state CreateTacticalGame
     local XComAISpawnManager SpawnManager;
     local Array<StrategyAssetSquad> VanguardSquads;
     local StrategyAssetSquad Squad;
+    local Array<Vector> DropLocations;
     local Vector ObjectiveLocation, DropLocation;
-    local int AlertLevel, ForceLevel, Offset;
+    local int AlertLevel, ForceLevel, Offset, OFFSET_SIZE;
+
+    OFFSET_SIZE = 96 * 10;
 
     BattleData = XComGameState_BattleData(CachedHistory.GetGameStateForObjectID(CachedBattleDataRef.ObjectID));
 
@@ -50,20 +53,49 @@ simulated state CreateTacticalGame
           MissionSiteState.RelatedStrategySiteRef.ObjectID
         )
       );
-      VanguardSquads = StrategyAsset.GetInitialSquads();
+      VanguardSquads = StrategyAsset.GetInitialSquads(MissionSiteState, BattleData);
     }
 
     Offset = 0;
     ObjectiveLocation = BattleData.MapData.ObjectiveLocation;
+    DropLocations = GetDropLocations(
+      BattleData.MapData.ObjectiveLocation,
+      VanguardSquads.Length
+    );
+    DropLocation = ObjectiveLocation;
+    DropLocation.X = DropLocation.X + Offset;
 
     foreach VanguardSquads(Squad)
     {
-      DropLocation = ObjectiveLocation;
-      DropLocation.X = DropLocation.X + Offset;
+      DropLocation = DropLocations[0];
+      DropLocations.Remove(0, 1);
       class'GlobalResistance_SquadSpawnManager'.static.SpawnSquad(
         Squad, DropLocation, StartState, false
       );
-      Offset = Offset + (96 * 10);
     }
+  }
+
+  // Get Drop Locations
+  function Array<Vector> GetDropLocations(Vector ObjectiveLocation, int Count)
+  {
+    local Array<Vector> DropLocations;
+    local Vector DropLocation;
+    local float Radius, Arc;
+    local int ix, OFFSET_SIZE;
+
+    DropLocations.AddItem(ObjectiveLocation);
+    Radius = `XWORLD.WORLD_StepSize * 10;
+
+    DropLocations.AddItem(ObjectiveLocation);
+
+    for (ix=0; ix < Count; ix++) {
+      Arc = 2 * Pi / Count * Ix;
+      DropLocation = ObjectiveLocation;
+      DropLocation.x = ObjectiveLocation.x + Radius * Cos(Arc);
+      DropLocation.y = ObjectiveLocation.y + Radius * Sin(Arc);
+      DropLocations.AddItem(DropLocation);
+    }
+
+    return DropLocations;
   }
 }

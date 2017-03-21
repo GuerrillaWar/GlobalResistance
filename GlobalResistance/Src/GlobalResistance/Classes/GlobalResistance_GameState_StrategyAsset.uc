@@ -338,6 +338,32 @@ function GenericUnitCount FindReservesForTemplateName(name Template)
   }
 }
 
+function StrategyAssetSquad GetRandomSquadForRole(
+  Array<StrategyAssetSquad> SquadPool,
+  name RoleType
+)
+{
+  local StrategyAssetSquad BlankSquad, IterSquad;
+  local Array<StrategyAssetSquad> CandidateSquads;
+
+  foreach SquadPool(IterSquad)
+  {
+    if (IterSquad.Role == RoleType)
+    {
+      CandidateSquads.AddItem(IterSquad);
+    }
+  }
+
+  if (CandidateSquads.Length == 0)
+  {
+    return BlankSquad;
+  }
+  else
+  {
+    return CandidateSquads[`SYNC_RAND_STATIC(CandidateSquads.Length)];
+  }
+}
+
 
 
 
@@ -905,7 +931,10 @@ function AddSquad(StrategyAssetSquad Squad)
 }
 
 
-function Array<StrategyAssetSquad> GetInitialSquads() {
+function Array<StrategyAssetSquad> GetInitialSquads(
+  GlobalResistance_GameState_MissionSite MissionSite,
+  XComGameState_BattleData BattleData
+) {
   return Squads;
 }
 
